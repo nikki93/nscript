@@ -19,7 +19,7 @@
 #include <trie.h>
 
 /*
- * A temporary constructs read from when the tries are created.
+ * A temporary construct read from when the tries are created.
  */
 struct ns_namemap
 {

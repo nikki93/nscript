@@ -23,7 +23,7 @@
 #include <nserror.h>
 
 /*
- * A very hacky tried dumping thing.
+ * A very hacky trie dumping thing.
  */
 void trie_dump(struct trie *trie, int indent)
 {
