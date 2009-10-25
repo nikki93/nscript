@@ -1,0 +1,8 @@
+Was made in a few hours, doesn't have most features you'd expect, is
+buggy and messy. Still pretty fun though. :P
+
+Building
+--------
+Run 'make' to build the library and test, 'make libnscript' to just
+build the library, and 'make test' to just build the test. Run 'nstest'
+to run the test executable.
