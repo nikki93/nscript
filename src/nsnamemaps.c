@@ -72,12 +72,7 @@ void ns_initNameMaps()
 /* ------------------ */
 int ns_isOperatorPrefix(char c)
 {
-    struct ns_namemap *curr = ns_operatormap;
-    for (; curr->key; ++curr)
-        if (*curr->key == c)
-            return 1;
-
-    return 0;
+    return ns_operatortrie->arr[c] ? 1 : 0;
 }
 /* ------------------ */
 struct ns_obj ns_findFunc(const char *key)
