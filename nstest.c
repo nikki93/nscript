@@ -137,14 +137,21 @@ int main()
         "   #Factorial of a number (the stupid way :P ).                                                                                      \n"
 
         "   {                                                                                                                                 \n"
-        "       1 rot { dup 1 + } rot                           #We put 1 and a block (which copies and increments numbers) before the count. \n"
+        "       #If it's 0 we give 1, otherwise calculate the factorial.                                                                      \n"
+        "       dup 0 ==                                                                                                                      \n"
+        "       {                                                                                                                             \n"
+        "           1 +                                                                                                                       \n"
+        "       }                                                                                                                             \n"
+        "       {                                                                                                                             \n"
+        "           1 rot { dup 1 + } rot                       #We put 1 and a block (which copies and increments numbers) before the count. \n"
 
-        "       1 - dup $oneLess                                #We put count - 1 on stack, and in the 'oneLess' variable.                    \n"
-        "       repeat                                          #This will cause { dup 1 + } to run starting with 1, count - 1 times, thus    \n"
+        "           1 - dup $oneLess                            #We put count - 1 on stack, and in the 'oneLess' variable.                    \n"
+        "           repeat                                      #This will cause { dup 1 + } to run starting with 1, count - 1 times, thus    \n"
         "                                                       #making  a list of numbers from 1 to count on the stack.                      \n"
 
-        "       &* oneLess repeat                               #Now we multiply 'oneLess' times, which multiplies the list of numbers        \n"
+        "           &* oneLess repeat                           #Now we multiply 'oneLess' times, which multiplies the list of numbers        \n"
         "                                                       #together.                                                                    \n"
+        "       } ifelse                                                                                                                      \n"
         "   } $fact                                                                                                                           \n"
 
         "   'Factorial of 6 is: 'print                                                                                                        \n"

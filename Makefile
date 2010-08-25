@@ -32,10 +32,10 @@ $(LIBRARY): $(OBJECTS)
 
 test: libnscript nstest.o nstest
 
-nstest.o:
+nstest.o: nstest.c
 	@echo "CC 	nstest.c";\
 	$(CC) $(CFLAGS) nstest.c
 
-nstest:
+nstest: nstest.o
 	@echo "LD 	nstest.o";\
 	$(CC) $(LDFLAGS) -o nstest nstest.o -lnscript -lm

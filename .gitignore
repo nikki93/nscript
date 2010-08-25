@@ -1,1 +1,12 @@
 tags
+libnscript.a
+nstest
+nstest.o
+src/dynarray.o
+src/nscript.o
+src/nsfuncs.o
+src/nsnamemaps.o
+src/nsobj.o
+src/nsstack.o
+src/trie.o
+

@@ -132,29 +132,28 @@ do_int:
 
                     //Escape sequence.
                     if (*curr == '\\')
-                        if (curr + 1)
-                            switch (*(curr + 1))
-                            {
-                                case 'n':
-                                    c = '\n';
-                                    ++code;
-                                    break;
+                        switch (*(curr + 1))
+                        {
+                            case 'n':
+                                c = '\n';
+                                ++code;
+                                break;
 
-                                case '\\':
-                                    c = '\\';
-                                    ++code;
-                                    break;
+                            case '\\':
+                                c = '\\';
+                                ++code;
+                                break;
 
-                                case 't':
-                                    c = '\t';
-                                    ++code;
-                                    break;
+                            case 't':
+                                c = '\t';
+                                ++code;
+                                break;
 
-                                case '\'':
-                                    c = '\'';
-                                    ++code;
-                                    break;
-                            }
+                            case '\'':
+                                c = '\'';
+                                ++code;
+                                break;
+                        }
 
                     dynarr_append(buf, c);
                 }
@@ -163,14 +162,6 @@ do_int:
                     dynarr_append(buf, '\0');
 
                     ns_push(ns_makeStrObjLen(buf->arr, buf->size));
-                    /*
-                    struct ns_obj obj;
-                    obj.type = TY_STR;
-                    obj.u.s = dynarr_new();
-                    dynarr_resize_up(obj.u.s, buf->size);
-                    strcpy(obj.u.s->arr, buf->arr);
-                    ns_push(obj);
-                    */
                     mode = MD_NONE;
                 }
                 break;
