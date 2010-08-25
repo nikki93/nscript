@@ -1,0 +1,16 @@
+true type ty_bool == print #Should be true.
+"\n" print
+
+1 type ty_int == print #Should be true.
+"\n" print
+
+2 type ty_str == print #Should be false.
+"\n" print
+
+&add type ty_func == print #Should be true.
+"\n" print
+
+{ "Hello\n" print } dup type ty_block == print #Should be true.
+"\n" print
+
+1 repeat

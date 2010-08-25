@@ -92,4 +92,23 @@ void ns_printStack();
 
 void ns_at();
 
+/*
+ * Gets a line from standard input, puts it as a string (without the newline) on stack.
+ */
+
+void ns_getline();
+
+/*
+ * Gets a character from standard input, puts it as a one-character string on stack.
+ */
+
+void ns_getchar();
+
+/*
+ * Get the type of the last object on stack. It consumes the object, and returns one of constants
+ * 'ty_int', 'ty_bool' etc.
+ */
+
+void ns_type();
+
 #endif

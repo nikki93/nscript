@@ -3,7 +3,7 @@
  *
  *       Filename:  ns.c
  *
- *    Description:  Interprets nscript code from standard input.
+ *    Description:  Runs nscript code from standard input, file or argument.
  *
  *        Created:  10/25/2009 08:17:38 AM
  *       Compiler:  gcc
@@ -14,28 +14,55 @@
  */
 
 #include <stdio.h>
+#include <unistd.h>
 
 #include <nscript.h>
 
-int main(int argc, char *argv[])
+void runString(const char *str)
 {
-    if (argc > 1)
-    {
-        printf("%s [-h]\nInterprets nscript code from standard input.\n", argv[0]);
-        return 0;
-    }
-
     ns_init();
+    ns_interpret(str);
+}
 
-    struct dynarr *f;
-    f = dynarr_new();
+void runFile(FILE *file)
+{
+    struct dynarr *str;
+    str = dynarr_new();
 
     int c;
-    while ((c = getchar()) != EOF)
-        dynarr_append(f, (char) c);
-    dynarr_append(f, '\0');
+    while ((c = getc(file)) != EOF)
+        dynarr_append(str, (char) c);
+    dynarr_append(str, '\0');
 
-    ns_interpret(f->arr);
+    runString(str->arr);
+}
+
+void showHelp()
+{
+    puts("ns [-f file] [-c code]");
+    puts("Runs nscript code from standard input, file or argument.");
+}
+
+int main(int argc, char *argv[])
+{
+    int c;
+    while ((c = getopt(argc, argv, "hc:f:")) != -1)
+        switch (c)
+        {
+            case 'f':
+                runFile(fopen(optarg, "r"));
+                return 0;
+
+            case 'c':
+                runString(optarg);
+                return 0;
+
+            case 'h':
+                showHelp();
+                return 0;
+        }
+
+    runFile(stdin);
 
     return 0;
 }

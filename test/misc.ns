@@ -1,5 +1,5 @@
 3 $three                                            #Sets 'three' to 3
-'\\'three\\' is ' print three print                 #Prints the value of 'three'
+'''three'' is ' print three print                 #Prints the value of 'three'
 { print ', ' print } $commaPrint                    #Prints something and adds a comma after it
 
 { 3 + commaPrint } $add3Print                       #Prints 3 + last thing on stack
@@ -7,8 +7,8 @@
 ', and 3 plus 3, 2, 1 is ' print
 1 2 3 &add3Print 3 repeat                           #Repeats 'add3Print' over 3, 2 and 1
 
-'\nLambda test: ' print
+"\nLambda test: " print
 6 5 4 { 2 + print ', ' print } 1 2 add repeat       #Repeats a 'lambda' block 1+2 times over 4, 5, 6
 
-'\n' print
+"\n" print
 

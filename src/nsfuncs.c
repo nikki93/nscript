@@ -70,6 +70,30 @@ void ns_exit()
 
     exit(code.u.i);
 }
+/* ------------------ */
+void ns_getline()
+{
+    struct ns_obj obj;
+    obj.type = TY_STR;
+    obj.u.s = dynarr_new();
+
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
+        dynarr_append(obj.u.s, (char) c);
+
+    ns_push(obj);
+}
+/* ------------------ */
+void ns_getchar()
+{
+    struct ns_obj obj;
+    obj.type = TY_STR;
+    obj.u.s = dynarr_new_alloc(2);
+    obj.u.s->arr[0] = getchar();
+    obj.u.s->arr[1] = '\0';
+
+    ns_push(obj);
+}
 
 /*
  * Control structures.
@@ -223,7 +247,7 @@ void ns_rot()
 {
     struct ns_stack *tmp1 = ns_stack->next;
     struct ns_stack *tmp2 = ns_stack;
-    tmp2->next = tmp1->next;;
+    tmp2->next = tmp1->next;
     ns_stack = tmp1;
     ns_stack->next = tmp2;
 }
@@ -244,4 +268,10 @@ void ns_at()
 
     ns_push(curr->obj);
 }
+/* ------------------ */
+void ns_type()
+{
+    struct ns_obj obj = ns_pop();
 
+    ns_push(ns_makeIntObj(obj.type));
+}

@@ -15,5 +15,5 @@
 
 12 fib                                              #Now print the first 12 numbers in the sequence.
 
-'\n' print
+"\n" print
 

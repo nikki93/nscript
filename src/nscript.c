@@ -128,12 +128,21 @@ do_int:
                 break;
 
             case MD_READSTR:
-                if (*curr != stringChar)
+                if (*curr != stringChar || (stringChar == '\'' && (*(curr + 1) == '\'')))
                 {
                     char c = *curr;
 
-                    //Escape sequence.
-                    if (*curr == '\\')
+                    //Escape sequences. If the string is delimited by ', the only escape sequence is '',
+                    //if it's delimited by ", do the usual C escape sequences.
+                    if (stringChar == '\'')
+                    {
+                        if (*curr == '\'' && *(curr + 1) == '\'')
+                        {
+                            c = '\'';
+                            ++code;
+                        }
+                    }
+                    else if (*curr == '\\')
                         switch (*(curr + 1))
                         {
                             case 'n':
@@ -141,13 +150,33 @@ do_int:
                                 ++code;
                                 break;
 
-                            case '\\':
-                                c = '\\';
+                            case 't':
+                                c = '\t';
                                 ++code;
                                 break;
 
-                            case 't':
-                                c = '\t';
+                            case 'v':
+                                c = '\v';
+                                ++code;
+                                break;
+
+                            case 'b':
+                                c = '\b';
+                                ++code;
+                                break;
+
+                            case 'r':
+                                c = '\r';
+                                ++code;
+                                break;
+
+                            case 'f':
+                                c = '\f';
+                                ++code;
+                                break;
+
+                            case 'a':
+                                c = '\a';
                                 ++code;
                                 break;
 

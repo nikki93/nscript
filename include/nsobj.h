@@ -42,11 +42,11 @@ struct ns_obj
     short type;
     union
     {
-        int bo;                                 //TY_BOOL
-        int i;                                  //TY_INT
-        struct dynarr *s;                       //TY_STR
-        ns_cFunc f;                             //TY_FUNC
-        struct dynarr *b;                       //TY_BLOCK
+        int bo;                                //TY_BOOL
+        int i;                                 //TY_INT
+        struct dynarr *s;                      //TY_STR
+        ns_cFunc f;                            //TY_FUNC
+        struct dynarr *b;                      //TY_BLOCK
     } u;
 };
 
