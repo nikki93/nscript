@@ -40,6 +40,7 @@ void ns_interpret(const char *code)
     int isOperator = 0;
     int blockDepth = 0;
     int negative = 0;
+    char stringChar = 0;
 
     do
     {
@@ -60,8 +61,9 @@ void ns_interpret(const char *code)
                     goto do_int;
                 }
                 //String constant.
-                else if (*curr == '\'')
+                else if (*curr == '\'' || *curr == '"')
                 {
+                    stringChar = *curr;
                     mode = MD_READSTR;
 
                     dynarr_clear(buf);
@@ -126,7 +128,7 @@ do_int:
                 break;
 
             case MD_READSTR:
-                if (*curr != '\'')
+                if (*curr != stringChar)
                 {
                     char c = *curr;
 
@@ -149,8 +151,8 @@ do_int:
                                 ++code;
                                 break;
 
-                            case '\'':
-                                c = '\'';
+                            default:
+                                c = *(curr + 1);
                                 ++code;
                                 break;
                         }

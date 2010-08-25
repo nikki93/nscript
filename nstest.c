@@ -180,6 +180,17 @@ int main()
     // */
 
     /*
+     * Some debugging stuff.
+     */
+    /*
+    char debug[] =
+        "\"lol\" print"
+        ;
+
+    ns_interpret(debug);
+    // */
+
+    /*
      * Once done, print the tries as a tree.
      */
 
@@ -191,17 +202,6 @@ int main()
 
     printf("\n\nConstants: \n");
     trie_dump(ns_constanttrie, 0);
-
-    /*
-     * Some debugging stuff.
-     */
-    /*
-    char debug[] =
-        "&trieDump 1 repeat"
-        ;
-
-    ns_interpret(debug);
-    // */
 
     return 0;
 }
