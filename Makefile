@@ -6,17 +6,17 @@ SOURCES=src/dynarray.c src/nscript.c src/nsfuncs.c src/nsnamemaps.c src/nsobj.c 
 OBJECTS=$(SOURCES:.c=.o)
 LIBRARY=libnscript.a
 
-all: libnscript test
+all: libnscript ns
 
 clean:
 	@echo "RM 	$(OBJECTS)";\
 	rm -f $(OBJECTS)
 	@echo "RM 	libnscript.a";\
 	rm -f libnscript.a
-	@echo "RM 	nstest.o";\
-	rm -f nstest.o
-	@echo "RM 	nstest";\
-	rm -f nstest
+	@echo "RM 	ns.o";\
+	rm -f ns.o
+	@echo "RM 	ns";\
+	rm -f ns
 
 
 libnscript: $(SOURCES) $(LIBRARY)
@@ -29,13 +29,10 @@ $(LIBRARY): $(OBJECTS)
 	@echo "CC 	$<";\
 	$(CC) $(CFLAGS) $< -o $@
 
+ns.o: ns.c
+	@echo "CC 	ns.c";\
+	$(CC) $(CFLAGS) ns.c
 
-test: libnscript nstest.o nstest
-
-nstest.o: nstest.c
-	@echo "CC 	nstest.c";\
-	$(CC) $(CFLAGS) nstest.c
-
-nstest: nstest.o
-	@echo "LD 	nstest.o";\
-	$(CC) $(LDFLAGS) -o nstest nstest.o -lnscript -lm
+ns: libnscript ns.o
+	@echo "LD 	ns.o";\
+	$(CC) $(LDFLAGS) -o ns ns.o -lnscript -lm

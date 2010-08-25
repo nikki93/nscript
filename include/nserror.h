@@ -24,7 +24,7 @@
 #define ns_error(fmt, ...)                                                                     \
 do                                                                                             \
 {                                                                                              \
-    printf(fmt, ##__VA_ARGS__);                                                                \
+    fprintf(stderr, fmt, ##__VA_ARGS__);                                                       \
     putchar('\n');                                                                             \
     exit(1);                                                                                   \
 } while (0)

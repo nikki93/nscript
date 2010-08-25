@@ -1,8 +1,10 @@
 Was made in a few hours, doesn't have most features you'd expect, is
 buggy and messy. Still pretty fun though. :P
 
-Building
---------
-Run 'make' to build the library and test, 'make libnscript' to just
-build the library, and 'make test' to just build the test. Run 'nstest'
-to run the test executable.
+Building 
+-------- 
+Run 'make' to build the library and interpreter, 'make libnscript'
+to just build the library, and 'make ns' to build just the interpreter.
+
+'ns' is the interpreter executable. You can run './ns < file' to run
+the nscript code in 'file'. Try './ns < test/fib.ns'.

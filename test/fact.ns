@@ -1,0 +1,20 @@
+{
+    #If it's 0 we give 1, otherwise calculate the factorial.
+    dup 0 ==
+    {
+        1 +
+    }
+    {
+        1 rot { dup 1 + } rot                       #We put 1 and a block which copies and increments numbers before the count.
+
+        1 - dup $oneLess                            #We put count - 1 on stack, and in the 'oneLess' variable.
+        repeat                                      #This will cause { dup 1 + } to run starting with 1, count - 1 times, thus
+                                                    #making  a list of numbers from 1 to count on the stack.
+
+        &* oneLess repeat                           #Now we multiply 'oneLess' times, which multiplies the list of numbers
+                                                    #together.
+    } ifelse
+} $fact
+
+10 fact print '\n' print                           #Print 6 factorial!
+

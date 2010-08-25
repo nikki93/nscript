@@ -50,7 +50,7 @@ void ns_interpret(const char *code)
         {
             case MD_NONE:
                 //Integer constant.
-                if (isdigit(*curr) || ((curr + 1) && (*curr == '-') && isdigit(*(curr + 1)) && (negative = 1)))
+                if (isdigit(*curr) || (*(curr + 1) && (*curr == '-') && isdigit(*(curr + 1)) && (negative = 1)))
                 {
                     mode = MD_READINT;
                     ns_push(ns_makeIntObj(0));

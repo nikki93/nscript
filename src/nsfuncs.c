@@ -58,7 +58,7 @@ void ns_printStack()
         printf("\n");
         curr = curr->next;
     }
-    printf("--");
+    puts("--");
 }
 /* ------------------ */
 void ns_exit()
