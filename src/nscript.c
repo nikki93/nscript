@@ -28,6 +28,7 @@ void ns_interpret(const char *code)
     enum
     {
         MD_READINT,
+        MD_READFLOATPART,
         MD_READSTR,
         MD_READNAME,
         MD_READBLOCK,
@@ -41,6 +42,7 @@ void ns_interpret(const char *code)
     int blockDepth = 0;
     int negative = 0;
     char stringChar = 0;
+    double floatMult = 0.1;
 
     do
     {
@@ -49,7 +51,7 @@ void ns_interpret(const char *code)
         switch (mode)
         {
             case MD_NONE:
-                //Integer constant.
+                //Integer constant. Will convert to float if there's a '.'.
                 if (isdigit(*curr) || (*(curr + 1) && (*curr == '-') && isdigit(*(curr + 1)) && (negative = 1)))
                 {
                     mode = MD_READINT;
@@ -118,10 +120,31 @@ void ns_interpret(const char *code)
 do_int:
                 if (isdigit(*curr))
                     ns_stack->obj.u.i = ns_stack->obj.u.i * 10 + *curr - '0';
+                else if (*curr == '.')
+                {
+                    NS_INTTOFLOAT(ns_stack->obj);
+                    mode = MD_READFLOATPART;
+                }
                 else
                 {
                     if (negative)
                         ns_stack->obj.u.i *= -1;
+                    negative = 0;
+                    mode = MD_NONE;
+                }
+                break;
+
+            case MD_READFLOATPART:
+                if (isdigit(*curr))
+                {
+                    ns_stack->obj.u.fl += floatMult * (*curr - '0');
+                    floatMult *= 0.1;
+                }
+                else
+                {
+                    if (negative)
+                        ns_stack->obj.u.fl *= -1;
+                    floatMult = 0.1;
                     negative = 0;
                     mode = MD_NONE;
                 }

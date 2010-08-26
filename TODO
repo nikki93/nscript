@@ -6,8 +6,6 @@ Todo
 
 - Add len/setch/getch functions for strings.
 
-- Add floating point support.
-
 - Format string output.
 
 - Use an array for stack instead of linked list?

@@ -23,6 +23,12 @@ struct ns_obj ns_makeIntObj(int i)
     return obj;
 }
 /* ------------------ */
+struct ns_obj ns_makeFloatObj(double fl)
+{
+    struct ns_obj obj = { TY_FLOAT, { .fl = fl } };
+    return obj;
+}
+/* ------------------ */
 struct ns_obj ns_makeStrObjLen(char *c, unsigned int len)
 {
     struct ns_obj obj;

@@ -29,6 +29,7 @@ enum
     TY_EMPTY,
     TY_BOOL,
     TY_INT,
+    TY_FLOAT,
     TY_STR,
     TY_FUNC,
     TY_BLOCK
@@ -44,6 +45,7 @@ struct ns_obj
     {
         int bo;                                //TY_BOOL
         int i;                                 //TY_INT
+        double fl;                             //TY_FLOAT
         struct dynarr *s;                      //TY_STR
         ns_cFunc f;                            //TY_FUNC
         struct dynarr *b;                      //TY_BLOCK
@@ -65,6 +67,7 @@ extern struct ns_obj ns_defaultObj;
  */
 struct ns_obj ns_makeBoolObj(int b);
 struct ns_obj ns_makeIntObj(int i);
+struct ns_obj ns_makeFloatObj(double fl);
 struct ns_obj ns_makeStrObjLen(char *c, unsigned int len);
 struct ns_obj ns_makeStrObj(char *c);
 struct ns_obj ns_makeFuncObj(ns_cFunc f);
@@ -72,7 +75,23 @@ struct ns_obj ns_makeFuncObj(ns_cFunc f);
 /*
  * Get C types from objects.
  */
-#define NS_INTFROMOBJ(obj) (obj).u.i
-#define NS_STRFROMOBJ(obj) (obj).u.s
+#define NS_INTFROMOBJ(obj) ((obj).u.i)
+#define NS_FLOATFROMOBJ(obj) ((obj).u.fl)
+#define NS_STRFROMOBJ(obj) ((obj).u.s)
+
+/*
+ * Whether an object is a number.
+ */
+#define NS_ISNUM(obj) ((obj).type == TY_INT || (obj).type == TY_FLOAT)
+
+/*
+ * Convert an integer object to a float object.
+ */
+#define NS_INTTOFLOAT(obj) \
+    do \
+    { \
+        (obj).type = TY_FLOAT; \
+        NS_FLOATFROMOBJ(obj) = NS_INTFROMOBJ(obj); \
+    } while(0)
 
 #endif

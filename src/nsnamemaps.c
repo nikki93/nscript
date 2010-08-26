@@ -59,6 +59,7 @@ struct ns_namemap ns_funcmap[] =                //Functions.
     { "ty_empty", { TY_INT, { .i = TY_EMPTY } } },
     { "ty_bool", { TY_INT, { .i = TY_BOOL } } },
     { "ty_int", { TY_INT, { .i = TY_INT } } },
+    { "ty_float", { TY_INT, { .i = TY_FLOAT } } },
     { "ty_str", { TY_INT, { .i = TY_STR } } },
     { "ty_func", { TY_INT, { .i = TY_FUNC } } },
     { "ty_block", { TY_INT, { .i = TY_BLOCK } } },

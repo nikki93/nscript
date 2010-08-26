@@ -32,6 +32,10 @@ void ns_print()
             printf("%d", obj.u.i);
             break;
 
+        case TY_FLOAT:
+            printf("%f", obj.u.fl);
+            break;
+
         case TY_STR:
             printf("%s", obj.u.s->arr);
             break;
@@ -154,42 +158,104 @@ void ns_add()
 {
     struct ns_obj a = ns_pop();
 
-    if (a.type != TY_INT || ns_stack->obj.type != TY_INT)
-        ns_error("add: Attempted to add non-integers!");
+    if (!(NS_ISNUM(a) && NS_ISNUM(ns_stack->obj)))
+        ns_error("add: Attempted to add non-numbers!");
 
-    ns_stack->obj.u.i += a.u.i;
+    if (a.type == TY_FLOAT && ns_stack->obj.type == TY_FLOAT)
+        ns_stack->obj.u.fl += a.u.fl;
+    else if (a.type == TY_INT && ns_stack->obj.type == TY_INT)
+        ns_stack->obj.u.fl += a.u.fl;
+    else if (a.type == TY_INT)
+    {
+        NS_INTTOFLOAT(a);
+        ns_stack->obj.u.fl += a.u.fl;
+    }
+    else if (ns_stack->obj.type == TY_INT)
+    {
+        NS_INTTOFLOAT(ns_stack->obj);
+        ns_stack->obj.u.fl += a.u.fl;
+    }
 }
 /* ------------------ */
 void ns_subtract()
 {
     struct ns_obj a = ns_pop();
 
-    if (a.type != TY_INT || ns_stack->obj.type != TY_INT)
-        ns_error("subtract: Attempted to subtract non-integers!");
+    if (!(NS_ISNUM(a) && NS_ISNUM(ns_stack->obj)))
+        ns_error("subtract: Attempted to subtract non-numbers!");
 
-    ns_stack->obj.u.i -= a.u.i;
+    if (a.type == TY_FLOAT && ns_stack->obj.type == TY_FLOAT)
+        ns_stack->obj.u.fl -= a.u.fl;
+    else if (a.type == TY_INT && ns_stack->obj.type == TY_INT)
+        ns_stack->obj.u.fl -= a.u.fl;
+    else if (a.type == TY_INT)
+    {
+        NS_INTTOFLOAT(a);
+        ns_stack->obj.u.fl -= a.u.fl;
+    }
+    else if (ns_stack->obj.type == TY_INT)
+    {
+        NS_INTTOFLOAT(ns_stack->obj);
+        ns_stack->obj.u.fl -= a.u.fl;
+    }
 }
 /* ------------------ */
 void ns_multiply()
 {
     struct ns_obj a = ns_pop();
 
-    if (a.type != TY_INT || ns_stack->obj.type != TY_INT)
-        ns_error("subtract: Attempted to multiply non-integers!");
+    if (!(NS_ISNUM(a) && NS_ISNUM(ns_stack->obj)))
+        ns_error("multiply: Attempted to multiply non-numbers!");
 
-    ns_stack->obj.u.i *= a.u.i;
+    if (a.type == TY_FLOAT && ns_stack->obj.type == TY_FLOAT)
+        ns_stack->obj.u.fl *= a.u.fl;
+    else if (a.type == TY_INT && ns_stack->obj.type == TY_INT)
+        ns_stack->obj.u.fl *= a.u.fl;
+    else if (a.type == TY_INT)
+    {
+        NS_INTTOFLOAT(a);
+        ns_stack->obj.u.fl *= a.u.fl;
+    }
+    else if (ns_stack->obj.type == TY_INT)
+    {
+        NS_INTTOFLOAT(ns_stack->obj);
+        ns_stack->obj.u.fl *= a.u.fl;
+    }
 }
 /* ------------------ */
 void ns_divide()
 {
     struct ns_obj a = ns_pop();
 
-    if (a.type != TY_INT || ns_stack->obj.type != TY_INT)
-        ns_error("divide: Attempted to compute quotient of non-integers!");
-    if (a.u.i == 0)
-        ns_error("divide: Attempted divide by zero!");
+    if (!(NS_ISNUM(a) && NS_ISNUM(ns_stack->obj)))
+        ns_error("divide: Attempted to find the quotient of non-numbers!");
 
-    ns_stack->obj.u.i /= a.u.i;
+    if (a.type == TY_FLOAT && ns_stack->obj.type == TY_FLOAT)
+    {
+        if (a.u.fl == 0)
+            ns_error("divide: Attempted divide by zero!");
+        ns_stack->obj.u.fl /= a.u.fl;
+    }
+    else if (a.type == TY_INT && ns_stack->obj.type == TY_INT)
+    {
+        if (a.u.i == 0)
+            ns_error("divide: Attempted divide by zero!");
+        ns_stack->obj.u.fl /= a.u.fl;
+    }
+    else if (a.type == TY_INT)
+    {
+        if (a.u.fl == 0)
+            ns_error("divide: Attempted divide by zero!");
+        NS_INTTOFLOAT(a);
+        ns_stack->obj.u.fl /= a.u.fl;
+    }
+    else if (ns_stack->obj.type == TY_INT)
+    {
+        if (a.u.fl == 0)
+            ns_error("divide: Attempted divide by zero!");
+        NS_INTTOFLOAT(ns_stack->obj);
+        ns_stack->obj.u.fl /= a.u.fl;
+    }
 }
 /* ------------------ */
 void ns_equals()
@@ -200,38 +266,36 @@ void ns_equals()
     ans.type = TY_BOOL;
 
     if (obj1.type != obj2.type)
-    {
         ans.u.bo = 0;
-        ns_push(ans);
-    }
     else
-    {
         switch (obj1.type)
         {
             case TY_BOOL:
                 ans.u.bo = obj2.u.bo == obj2.u.bo;
                 break;
 
+            case TY_FLOAT:
+                ans.u.bo = obj1.u.fl == obj2.u.fl;
+                break;
+
             case TY_INT:
                 ans.u.bo = obj1.u.i == obj2.u.i;
-                ns_push(ans);
                 break;
 
             case TY_STR:
                 ans.u.bo = !strcmp(obj1.u.s->arr, obj2.u.s->arr);
-                ns_push(ans);
                 break;
 
             case TY_FUNC:
                 ans.u.bo = obj1.u.f == obj2.u.f;
-                ns_push(ans);
                 break;
 
             case TY_BLOCK:
                 ans.u.bo = !strcmp(obj1.u.b->arr, obj2.u.b->arr);
                 break;
         }
-    }
+
+    ns_push(ans);
 }
 
 /*
