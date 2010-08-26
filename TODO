@@ -1,0 +1,20 @@
+Todo
+----
+- Fix comments in tests to honour 78 column rule.
+
+- Add license.
+
+- Add len/setch/getch functions for strings.
+
+- Add floating point support.
+
+- Format string output.
+
+- Use an array for stack instead of linked list?
+
+- Move everything into 'nsvm' struct to allow multiple nscript vms in
+  the same program?
+
+- Add 'array' type?
+
+- Add structs?

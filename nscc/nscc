@@ -1,0 +1,124 @@
+#!/bin/sh
+# compile nscript files with a C compiler
+# --pancake
+
+if [ -z "$1" ]; then
+	echo "Usage: nscc [-o a.out] [file.ns] [...]"
+	exit 1
+fi
+[ -z "${CC}" ] && CC=gcc
+
+OUT=a.out
+INC=
+# TODO: use while
+if [ "$1" = "-o" ]; then
+	shift
+	OUT=$1
+	shift
+fi
+if [ "$1" = "-i" ]; then
+	shift
+	INC=$1
+	shift
+fi
+TMP="${1}.c"
+
+cat >$TMP <<EOF
+#include <stdio.h>
+#include <nscript.h>
+#include <nsstack.h>
+#include <dynarray.h>
+#include <nsnamemaps.h>
+
+static const char *code = \\
+EOF
+cat $@ | sed -e 's,",\\",g' -e 's,^,  ",' -e 's,$,\\n",' >> $TMP
+echo -e ";\\n" >>$TMP
+
+if [ -n "${INC}" ]; then
+	FUNCS=$(grep -v '^#' ${INC})
+	for a in ${FUNCS} ; do
+		ret=$(echo $a | cut -d : -f 1)
+		arg=$(echo $a | cut -d : -f 2)
+		nam=$(echo $a | cut -d : -f 3)
+		echo "static void myns_${nam}() {" >> $TMP
+		[ ! "$ret" = "-" ] && echo "  struct ns_obj obj;" >> $TMP
+		n=0
+		m=$(printf $arg |sed -e s.-..g |wc -c)
+		for b in $(echo $arg | sed -e 's.-. .g') ; do
+			echo "  struct ns_obj arg_${n} = ns_pop();" >> $TMP
+			n=$(($n+1))
+			[ "$n" = "$m" ] && break
+		done
+		case $ret in
+		-) printf "  ${nam}(" >> $TMP
+			;;
+		s) printf "  char *ret = ${nam}(" >> $TMP
+			;;
+		i) printf "  int ret = ${nam}(" >> $TMP
+			;;
+		esac
+		n=0
+		m=$(printf $arg |sed -e s.-..g |wc -c)
+		for b in $(echo $a | sed -e 's.-. .g') ; do
+			type=$(echo $arg | sed -e 's.-..g' | cut -c $(($n+1)))
+			case $type in
+			s) printf "arg_${n}.u.s->arr" >> $TMP
+				;;
+			i) printf "arg_${n}.u.i" >> $TMP
+				;;
+			esac
+			n=$(($n+1))
+			[ "$n" -lt "$m" ] && printf ", " >> $TMP
+		done
+		echo ");" >> $TMP
+		n=0
+		if [ -n "${ret}" ]; then
+			case "${ret}" in
+			i)
+				echo "  obj.type = TY_INT;" >> $TMP
+				echo "  obj.u.i = ret;" >> $TMP
+				echo "  ns_push(obj);" >> $TMP
+				;;
+			s)
+				echo "  obj.type = TY_STR;" >> $TMP
+				echo "  len=strlen(arg_${n}.u.s->arr);" >> $TMP
+				echo "  obj.u.s = dynarr_new_alloc(ret);" >> $TMP
+				echo "  strcpy(obj.u.s->arr, arg_${n}.u.s->arr);" >> $TMP
+				echo "  ns_push(obj);" >> $TMP
+				;;
+			esac
+		fi
+		echo "}" >> $TMP
+		echo "" >> $TMP
+	done
+	echo "static struct ns_namemap my_ns_funcmap[] = {" >> $TMP
+	for a in ${FUNCS} ; do
+		nam=$(echo $a | cut -d : -f 3)
+		echo "  { \"${nam}\", { TY_FUNC, { .f = myns_${nam} } } }, " >> $TMP
+		n=$(($n+1))
+	done
+	echo "  { 0 }" >> $TMP
+	echo "};" >> $TMP
+	echo "" >> $TMP
+	echo "static void my_ns_init() {" >>$TMP
+	echo "  struct ns_namemap *curr = my_ns_funcmap;" >> $TMP
+	echo "  for(;curr->key;++curr)" >> $TMP
+	echo "    trie_add(ns_functrie, curr->key, curr->obj);" >> $TMP
+	echo "}" >> $TMP
+	echo "" >> $TMP
+else 
+	echo "" >> $TMP
+	echo "void my_ns_init() { } " >> $TMP
+fi
+
+cat >>$TMP <<EOF
+int main() {
+	ns_init();
+	my_ns_init();
+	ns_interpret(code);
+	return 0;
+}
+EOF
+${CC} -Wall ${CFLAGS} ${LDFLAGS} -o ${OUT} $TMP -lnscript
+#rm -f $TMP

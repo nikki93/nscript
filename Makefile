@@ -28,9 +28,11 @@ install:
 	cp -rf include/* ${DESTDIR}/${PREFIX}/include/nscript
 	mkdir -p ${DESTDIR}/${PREFIX}/bin
 	cp ns ${DESTDIR}/${PREFIX}/bin
+	cp nscc/nscc ${DESTDIR}/${PREFIX}/bin
 
 uninstall deinstall:
 	rm -f ${DESTDIR}/${PREFIX}/bin/ns
+	rm -f ${DESTDIR}/${PREFIX}/bin/nscc
 	rm -rf ${DESTDIR}/${PREFIX}/include/nscript
 	rm -f ${DESTDIR}/${PREFIX}/lib/libnscript.a
 

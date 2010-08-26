@@ -1,0 +1,14 @@
+# test program for libc.nsi
+dup print "\n" print
+"food"
+ns_pop
+"one" "one" strcmp $x
+"one" "two" strcmp $y
+"strcmp one-one: " print x print "\n" print
+"strcmp one-two: " print y print "\n" print
+"ls" system
+# "echo 'hello world'" system
+{ "true\n" print } $t
+"false" t ns_pop
+# print
+exit
