@@ -3,7 +3,7 @@
  *
  *       Filename:  ns.c
  *
- *    Description:  Runs nscript code from standard input, file or argument.
+ *    Description:  Runs nscript code from standard input or file.
  *
  *        Created:  10/25/2009 08:17:38 AM
  *       Compiler:  gcc
@@ -14,9 +14,9 @@
  */
 
 #include <stdio.h>
-#include <unistd.h>
 
 #include <nscript.h>
+#include <nsstack.h>
 
 void runString(const char *str)
 {
@@ -37,32 +37,45 @@ void runFile(FILE *file)
     runString(str->arr);
 }
 
-void showHelp()
+void repl()
 {
-    puts("ns [-f file] [-c code]");
-    puts("Runs nscript code from standard input, file or argument.");
+    char buf[1024];
+
+    ns_init();
+
+    for (;;)
+    {
+        printf("> ");
+        if (!fgets(buf, sizeof(buf), stdin))
+            break;
+        printf("\n");
+        ns_interpret(buf);
+        printf("\n\n");
+    }
+
+    printf("\n");
+}
+
+void showHelp(char *progname)
+{
+    printf("%s file\n", progname);
+    exit(0);
 }
 
 int main(int argc, char *argv[])
 {
-    int c;
-    while ((c = getopt(argc, argv, "hc:f:")) != -1)
-        switch (c)
-        {
-            case 'f':
-                runFile(fopen(optarg, "r"));
-                return 0;
+    if (argc > 1)
+        if (!strcmp(argv[1], "-"))
+            runFile(stdin);
+        else if (!strcmp(argv[1], "-h"))
+            showHelp(argv[0]);
+        else
+            runFile(fopen(argv[1], "r"));
+    else
+        repl();
 
-            case 'c':
-                runString(optarg);
-                return 0;
-
-            case 'h':
-                showHelp();
-                return 0;
-        }
-
-    runFile(stdin);
-
+    struct ns_obj ret;
+    if (ns_stackSize > 0 && (ret = ns_pop()).type == TY_INT)
+        return NS_INTFROMOBJ(ret);
     return 0;
 }
