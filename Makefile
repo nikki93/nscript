@@ -4,7 +4,7 @@ CFLAGS+=-Iinclude/ -c -g
 LDFLAGS+=-L. -g
 DESTDIR?=
 PREFIX?=/usr/local
-SOURCES=src/dynarray.c src/nscript.c src/nsfuncs.c src/nsnamemaps.c src/nsobj.c src/nsstack.c src/trie.c
+SOURCES=src/dynarray.c src/nscript.c src/nsbuiltins.c src/nsnamespace.c src/nsobj.c src/nsstack.c src/trie.c
 OBJECTS=$(SOURCES:.c=.o)
 LIBRARY=libnscript.a
 

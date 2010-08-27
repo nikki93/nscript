@@ -1,3 +1,6 @@
+#A demonstration factorial function. It works by putting the numbers 1..n on the
+#stack first, then multiplying them together.
+
 {
     #If it's 0 we give 1, otherwise calculate the factorial.
     dup 0 ==
@@ -5,16 +8,22 @@
         1 +
     }
     {
-        1 rot { dup 1 + } rot                       #We put 1 and a block which copies and increments numbers before the count.
+        #We put 1 and a block which copies and increments numbers before the count.
+        1 rot { dup 1 + } rot
 
-        1 - dup $oneLess                            #We put count - 1 on stack, and in the 'oneLess' variable.
-        repeat                                      #This will cause { dup 1 + } to run starting with 1, count - 1 times, thus
-                                                    #making  a list of numbers from 1 to count on the stack.
+        #We put count - 1 on stack, and in the 'oneLess' variable.
+        1 - dup $oneLess
 
-        &* oneLess repeat                           #Now we multiply 'oneLess' times, which multiplies the list of numbers
-                                                    #together.
+        #This will cause { dup 1 + } to run starting with 1, count - 1 times, thus
+        #making  a list of numbers from 1 to count on the stack.
+        repeat
+
+        #Now we multiply 'oneLess' times, which multiplies the list of numbers
+        #together.
+        &* oneLess repeat
+
     } ifelse
 } $fact
 
-10 fact print "\n" print                            #Print 10 factorial!
+10 fact print "\n" print
 

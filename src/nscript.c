@@ -2,28 +2,32 @@
  * nscript.c
  */
 
+#include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include <nsobj.h>
 #include <nserror.h>
-#include <nsnamemaps.h>
+#include <nsnamespace.h>
+#include <nsbuiltins.h>
 #include <nsstack.h>
 
 #include <nscript.h>
 
-/* ------------------ */
 void ns_init()
 {
     ns_initStack();
-    ns_initNameMaps();
-    ns_initVariableMap();
+    ns_initBuiltinsSpace();
+    ns_currNamespace = ns_builtinsSpace;
 }
 /* ------------------ */
-void ns_interpret(const char *code)
+void ns_interpret(const char *code, struct ns_namespace *parent)
 {
     const char *curr;
-    struct dynarr *buf;
     char *bufptr;
-
-    buf = dynarr_new();
+    struct dynarr *buf = dynarr_new();
+    struct ns_namespace *oldNamespace = ns_currNamespace;
+    ns_currNamespace = ns_newNamespace(parent);
 
     enum
     {
@@ -38,7 +42,6 @@ void ns_interpret(const char *code)
 
     int mode = MD_NONE;
     int callFunc = 1;
-    int isOperator = 0;
     int blockDepth = 0;
     int negative = 0;
     char stringChar = 0;
@@ -72,15 +75,6 @@ void ns_interpret(const char *code)
 
                     break;
                 }
-                //Name, operator.
-                else if (isalpha(*curr) || *curr == '_' || (ns_isOperatorPrefix(*curr) && (isOperator = 1)))
-                {
-                    mode = MD_READNAME;
-
-                    dynarr_clear(buf);
-
-                    goto do_name;
-                }
                 //Function reference.
                 else if (*curr == '&')
                 {
@@ -89,8 +83,6 @@ void ns_interpret(const char *code)
 
                     dynarr_clear(buf);
 
-                    if (ns_isOperatorPrefix(*(curr + 1)))
-                        isOperator = 1;
                     break;
                 }
                 //Block of code.
@@ -106,6 +98,7 @@ void ns_interpret(const char *code)
                 //Comment.
                 else if (*curr == '#')
                     while (*++code && (*code != '\n'));
+                //Variable definition.
                 else if (*curr == '$')
                 {
                     mode = MD_READVARNAME;
@@ -113,6 +106,15 @@ void ns_interpret(const char *code)
                     dynarr_clear(buf);
 
                     break;
+                }
+                //Variable read.
+                else if (!isspace(*curr))
+                {
+                    mode = MD_READNAME;
+
+                    dynarr_clear(buf);
+
+                    goto do_name;
                 }
                 break;
 
@@ -222,44 +224,15 @@ do_int:
 
             case MD_READNAME:
 do_name:
-                //Operators end on space, names end on non-alphanumeric.
-                if ((isOperator && !isspace(*curr)) || isalnum(*curr) || *curr == '_')
+                if (!isspace(*curr))
                     dynarr_append(buf, *curr);
                 else
                 {
                     dynarr_append(buf, '\0');
                     mode = MD_NONE;
 
-                    struct ns_obj obj;
+                    struct ns_obj obj = *ns_searchNamespaceInherit(ns_currNamespace, buf->arr);
 
-                    obj = ns_findFunc(buf->arr);
-                    if (obj.type != TY_EMPTY)
-                    {
-                        if (callFunc)
-                            obj.u.f();
-                        else
-                            ns_push(obj);
-                        goto finish;
-                    }
-
-                    obj = ns_findOperator(buf->arr);
-                    if (obj.type != TY_EMPTY)
-                    {
-                        if (callFunc)
-                            obj.u.f();
-                        else
-                            ns_push(obj);
-                        goto finish;
-                    }
-
-                    obj = ns_findConstant(buf->arr);
-                    if (obj.type != TY_EMPTY)
-                    {
-                        ns_push(obj);
-                        goto finish;
-                    }
-
-                    obj = *ns_findVariable(buf->arr);
                     if (obj.type != TY_EMPTY)
                     {
                         if (callFunc && ns_isExecutable(obj))
@@ -269,12 +242,11 @@ do_name:
                         goto finish;
                     }
 
-                    ns_error("Name '%s' not found!", buf->arr);
+                    ns_error("Variable '%s' not found!", buf->arr);
 
 finish:
                     //Reset for next time.
                     callFunc = 1;
-                    isOperator = 0;
                 }
                 break;
 
@@ -300,17 +272,17 @@ finish:
                 break;
 
             case MD_READVARNAME:
-                if (isalnum(*curr) || *curr == '_')
+                if (!isspace(*curr))
                     dynarr_append(buf, *curr);
                 else
                 {
                     dynarr_append(buf, '\0');
-                    struct ns_obj *obj = ns_findVariable(buf->arr);
+                    struct ns_obj *obj = ns_searchNamespace(ns_currNamespace, buf->arr);
 
                     if (obj->type != TY_EMPTY)
                         *obj = ns_pop();
                     else
-                        ns_addVariable(buf->arr, ns_pop());
+                        ns_addToNamespace(ns_currNamespace, buf->arr, ns_pop());
                     mode = MD_NONE;
                 }
                 break;
@@ -318,6 +290,8 @@ finish:
     } while (*curr);
 
     dynarr_free(buf);
+
+    ns_currNamespace = oldNamespace;
 }
 /* ------------------ */
 void ns_execute(struct ns_obj obj)
@@ -329,7 +303,7 @@ void ns_execute(struct ns_obj obj)
             break;
 
         case TY_BLOCK:
-            ns_interpret(obj.u.b->arr);
+            ns_interpret(obj.u.b->arr, ns_currNamespace);
             break;
     }
 }

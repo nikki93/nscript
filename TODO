@@ -1,7 +1,5 @@
 Todo
 ----
-- Fix comments in tests to honour 78 column rule.
-
 - Add license.
 
 - Add len/setch/getch functions for strings.

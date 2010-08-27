@@ -1,0 +1,47 @@
+#Write your own operators! There's no difference between 'operators' and
+#'normal functions' in nscript. In fact, there's no difference between
+#'functions' and variables. Everything is a variable, some variables
+#are executable.
+
+#Function names must simply not begin with a digit, ', ", &, $, # or {
+
+#Here we write a '^' operator simply by assigning a block to the variable
+#'^'. n p ^ consumes n and p and leaves pow(n, p) on the stack. Works only
+#with whole number exponents.
+#
+#Remember that although we're calling this an 'operator', to nscript it's
+#just a variable that's executable.
+
+{
+    $p $n
+
+    #Put n on the stack p times, then multiply p times. We also put a 1 on 
+    #the stack to allow for p = 0.
+    1
+    { n } p repeat 
+    &* p repeat
+} $^
+
+2 3 ^ print
+"\n" print
+
+#Here we assign a number to the variable !^&.
+
+42 $!^&
+
+!^& print
+"\n" print
+
+!^& 7 + print
+"\n" print
+
+#Here we assign &print to + temporarily within a block to make + print
+#instead of adding numbers. Outside the block it's back to normal.
+{
+    &print $+
+    3 + #Prints '3'.
+    "\n" print
+} 1 repeat #TODO: Add an 'exec' function to just run a block?
+
+2 3 + print #Here it prints '5'.
+"\n" print

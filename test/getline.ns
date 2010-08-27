@@ -1,3 +1,9 @@
+#A test for the 'getline' function. getline gets a line of input, and
+#leaves the string on stack (without the trailing newline).
+
 "Type something: " print
-"\n" getline
-"You typed: " &print 3 repeat
+getline $str
+
+"You typed: " print str print
+
+"\n" print

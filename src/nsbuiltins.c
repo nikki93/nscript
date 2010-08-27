@@ -1,16 +1,16 @@
 /*
- * nsfuncs.c
- *
- * Pre-defined functions available in nscript.
+ * nsbuiltins.c
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <nsobj.h>
 #include <nsstack.h>
 #include <nserror.h>
+#include <nsnamespace.h>
 
-#include <nsfuncs.h>
+#include <nsbuiltins.h>
 
 /*
  * IO/System
@@ -164,7 +164,7 @@ void ns_add()
     if (a.type == TY_FLOAT && ns_stack->obj.type == TY_FLOAT)
         ns_stack->obj.u.fl += a.u.fl;
     else if (a.type == TY_INT && ns_stack->obj.type == TY_INT)
-        ns_stack->obj.u.fl += a.u.fl;
+        ns_stack->obj.u.i += a.u.i;
     else if (a.type == TY_INT)
     {
         NS_INTTOFLOAT(a);
@@ -187,7 +187,7 @@ void ns_subtract()
     if (a.type == TY_FLOAT && ns_stack->obj.type == TY_FLOAT)
         ns_stack->obj.u.fl -= a.u.fl;
     else if (a.type == TY_INT && ns_stack->obj.type == TY_INT)
-        ns_stack->obj.u.fl -= a.u.fl;
+        ns_stack->obj.u.i -= a.u.i;
     else if (a.type == TY_INT)
     {
         NS_INTTOFLOAT(a);
@@ -210,7 +210,7 @@ void ns_multiply()
     if (a.type == TY_FLOAT && ns_stack->obj.type == TY_FLOAT)
         ns_stack->obj.u.fl *= a.u.fl;
     else if (a.type == TY_INT && ns_stack->obj.type == TY_INT)
-        ns_stack->obj.u.fl *= a.u.fl;
+        ns_stack->obj.u.i *= a.u.i;
     else if (a.type == TY_INT)
     {
         NS_INTTOFLOAT(a);
@@ -240,7 +240,7 @@ void ns_divide()
     {
         if (a.u.i == 0)
             ns_error("divide: Attempted divide by zero!");
-        ns_stack->obj.u.fl /= a.u.fl;
+        ns_stack->obj.u.i /= a.u.i;
     }
     else if (a.type == TY_INT)
     {
@@ -338,4 +338,59 @@ void ns_type()
     struct ns_obj obj = ns_pop();
 
     ns_push(ns_makeIntObj(obj.type));
+}
+
+/*
+ * Export the C functions to nscript.
+ */
+
+struct ns_namemap ns_builtinsMap[] =
+{
+    /* Functions. */
+    { "print", { TY_FUNC, { .f = ns_print } } },
+    { "add", { TY_FUNC, { .f = ns_add } } },
+    { "subtract", { TY_FUNC, { .f = ns_subtract } } },
+    { "multiply", { TY_FUNC, { .f = ns_multiply } } },
+    { "divide", { TY_FUNC, { .f = ns_divide } } },
+    { "exit", { TY_FUNC, { .f = ns_exit } } },
+    { "repeat", { TY_FUNC, { .f = ns_repeat } } },
+    { "dup", { TY_FUNC, { .f = ns_dup } } },
+    { "rot", { TY_FUNC, { .f = ns_rot } } },
+    { "if", { TY_FUNC, { .f = ns_if } } },
+    { "ifelse", { TY_FUNC, { .f = ns_ifelse } } },
+    { "equals", { TY_FUNC, { .f = ns_equals } } },
+    { "printStack", { TY_FUNC, { .f = ns_printStack } } },
+    { "at", { TY_FUNC, { .f = ns_at } } },
+    { "getline", { TY_FUNC, { .f = ns_getline } } },
+    { "getchar", { TY_FUNC, { .f = ns_getchar } } },
+    { "type", { TY_FUNC, { .f = ns_type } } },
+
+    /* Operators. */
+    { "+", { TY_FUNC, { .f = ns_add } } },
+    { "-", { TY_FUNC, { .f = ns_subtract } } },
+    { "*", { TY_FUNC, { .f = ns_multiply } } },
+    { "/", { TY_FUNC, { .f = ns_divide } } },
+    { "==", { TY_FUNC, { .f = ns_equals } } },
+
+    /* Constants. */
+    { "true", { TY_BOOL, { .bo = 1 } } },
+    { "false", { TY_BOOL, { .bo = 0 } } },
+
+    { "ty_empty", { TY_INT, { .i = TY_EMPTY } } },
+    { "ty_bool", { TY_INT, { .i = TY_BOOL } } },
+    { "ty_int", { TY_INT, { .i = TY_INT } } },
+    { "ty_float", { TY_INT, { .i = TY_FLOAT } } },
+    { "ty_str", { TY_INT, { .i = TY_STR } } },
+    { "ty_func", { TY_INT, { .i = TY_FUNC } } },
+    { "ty_block", { TY_INT, { .i = TY_BLOCK } } },
+
+    { 0 }
+};
+/* ------------------ */
+struct ns_namespace *ns_builtinsSpace;
+/* ------------------ */
+void ns_initBuiltinsSpace()
+{
+    ns_builtinsSpace = ns_newNamespace(0);
+    ns_namemapToNamespace(ns_builtinsSpace, ns_builtinsMap);
 }

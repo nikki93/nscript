@@ -16,6 +16,18 @@
 #ifndef __NSFUNCS_H__
 #define __NSFUNCS_H__
 
+#include <nsnamespace.h>
+
+/*
+ * The builtin namespace contains 'builtins'.
+ *
+ * TODO: Split this into multiple namespaces (IO, basic operators, etc.)?
+ */
+extern struct ns_namemap ns_builtinsMap[];
+extern struct ns_namespace *ns_builtinsSpace;
+
+void ns_initBuiltinsSpace();
+
 /*
  * Print an object on the stack to standard output.
  */

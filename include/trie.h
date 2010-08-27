@@ -20,6 +20,13 @@
 
 typedef struct ns_obj trie_info_t;                   /* Element type */
 
+/*
+ * Actually, hashmaps could be used for 'pre-defined' things, with
+ * a perfect hash function (possible keys are statically known).
+ *
+ * Anyway...
+ */
+
 struct trie
 {
     char initialised;
@@ -37,6 +44,6 @@ void trie_free(struct trie *trie);
 void trie_add(struct trie *trie, const char *c, trie_info_t info);
 
 /* Get the element with given key, default if not found */
-trie_info_t trie_get(struct trie *trie, const char *c, trie_info_t def);
+trie_info_t *trie_get(struct trie *trie, const char *c, trie_info_t *def);
 
 #endif

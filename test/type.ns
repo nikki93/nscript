@@ -1,3 +1,5 @@
+#A test for the 'type' function.
+
 true type ty_bool == print #Should be true.
 "\n" print
 

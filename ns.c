@@ -14,20 +14,21 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <nscript.h>
 #include <nsstack.h>
+#include <nsbuiltins.h>
 
 void runString(const char *str)
 {
     ns_init();
-    ns_interpret(str);
+    ns_interpret(str, ns_builtinsSpace);
 }
 
 void runFile(FILE *file)
 {
-    struct dynarr *str;
-    str = dynarr_new();
+    struct dynarr *str = dynarr_new();
 
     int c;
     while ((c = getc(file)) != EOF)
@@ -49,7 +50,7 @@ void repl()
         if (!fgets(buf, sizeof(buf), stdin))
             break;
         printf("\n");
-        ns_interpret(buf);
+        ns_interpret(buf, ns_builtinsSpace);
         printf("\n\n");
     }
 

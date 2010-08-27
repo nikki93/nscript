@@ -38,7 +38,7 @@ void trie_add(struct trie *trie, const char *c, trie_info_t info)
     trie->initialised = 1;
 }
 /* ------------------ */
-trie_info_t trie_get(struct trie *trie, const char *c, trie_info_t def)
+trie_info_t *trie_get(struct trie *trie, const char *c, trie_info_t *def)
 {
     /*
      * O(strlen(c)) :D
@@ -48,5 +48,5 @@ trie_info_t trie_get(struct trie *trie, const char *c, trie_info_t def)
         if (!(trie = trie->arr[*c++]))
             return def;
 
-    return trie->initialised ? trie->info : def;
+    return trie->initialised ? &(trie->info) : def;
 }

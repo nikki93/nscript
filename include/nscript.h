@@ -16,11 +16,8 @@
 #ifndef __NSCRIPT_H__
 #define __NSCRIPT_H__
 
-#include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include <nsobj.h>
+#include <nsnamespace.h>
 
 /*
  * Initialises the interpretter.
@@ -30,7 +27,7 @@ void ns_init();
 /*
  * Interprets some code.
  */
-void ns_interpret(const char *code);
+void ns_interpret(const char *code, struct ns_namespace *parent);
 
 /*
  * Executes an object.

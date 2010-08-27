@@ -1,19 +1,33 @@
-{ print ', ' print } $commaPrint                    #Prints something and adds a comma after it
+#Prints the fibonacci sequence for n > 2.
+
+#Prints something and adds a space after it
+{ print ' ' print } $spacePrint                    
 
 {
-    1 at 1 at +                                     #Add last two on stack, but keep them on stack.
-    dup commaPrint                                  #Print it (duplicate so it's not lost).
+    #Add last two on stack, but keep them on stack.
+    1 at 1 at +                                     
+    #Print it (duplicate so it's not lost).
+    dup spacePrint                                  
 } $_fib
 
 {
-    2 -                                             #Subtract 2 since we already print 0, 1 anyway.
-    '0, 1, ' print                                  #Print first two terms.
-    0 rot 1 rot                                     #Put first two terms, but 'rot' to keep the repeat index last.
-    &_fib rot                                       #Put reference to _fib, but 'rot' to keep the repeat index last.
-    repeat                                          #Runs _fib as many times as on the stack before running 'fib'.
+    #Subtract 2 since we already print 0, 1 anyway.
+    2 -                                             
+
+    #Print first two terms.
+    '0 1 ' print                                  
+
+    #Put first two terms, but 'rot' to keep the repeat index last.
+    0 rot 1 rot                                     
+
+    #Put reference to _fib, but 'rot' to keep the repeat index last.
+    &_fib rot                                       
+
+    #Runs _fib n times.
+    repeat                                          
 } $fib
 
-12 fib                                              #Now print the first 12 numbers in the sequence.
+12 fib
 
 "\n" print
 

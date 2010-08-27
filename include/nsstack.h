@@ -16,8 +16,6 @@
 #ifndef __NSSTACK_H__
 #define __NSSTACK_H__
 
-#include <stdlib.h>
-
 #include <nsobj.h>
 
 /*
