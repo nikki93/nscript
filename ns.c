@@ -23,7 +23,7 @@
 void runString(const char *str)
 {
     ns_init();
-    ns_interpret(str, ns_builtinsSpace);
+    ns_interpretInChild(str, ns_builtinsSpace);
 }
 
 void runFile(FILE *file)
@@ -44,13 +44,15 @@ void repl()
 
     ns_init();
 
+    struct ns_namespace *replSpace = ns_newNamespace(ns_builtinsSpace);
+
     for (;;)
     {
         printf("> ");
         if (!fgets(buf, sizeof(buf), stdin))
             break;
         printf("\n");
-        ns_interpret(buf, ns_builtinsSpace);
+        ns_interpretInNamespace(buf, replSpace);
         printf("\n\n");
     }
 

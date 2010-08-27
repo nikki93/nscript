@@ -9,7 +9,7 @@ true type ty_bool == print #Should be true.
 2 type ty_str == print #Should be false.
 "\n" print
 
-&add type ty_func == print #Should be true.
+&+ type ty_func == print #Should be true.
 "\n" print
 
 { "Hello\n" print } dup type ty_block == print #Should be true.

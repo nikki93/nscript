@@ -1,0 +1,13 @@
+#Reverse the argument order for 'if'.
+
+{
+  &if $_if
+  { rot _if } $if #The 'reversed if'.
+
+  #Code here uses the reversed if.
+  { "It's true!\n" print } true if
+} 1 repeat
+
+#Here we're back to the 'normal if'.
+false { "You won't see this!\n" print } if
+

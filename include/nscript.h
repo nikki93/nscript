@@ -25,9 +25,14 @@
 void ns_init();
 
 /*
- * Interprets some code.
+ * Interprets code in the given namespace. Blocks are run in new children.
  */
-void ns_interpret(const char *code, struct ns_namespace *parent);
+void ns_interpretInNamespace(const char *code, struct ns_namespace *ns);
+
+/*
+ * Interprets code in a child of the given namespace.
+ */
+void ns_interpretInChild(const char *code, struct ns_namespace *parent);
 
 /*
  * Executes an object.

@@ -123,4 +123,10 @@ void ns_getchar();
 
 void ns_type();
 
+/*
+ * Execute an executable.
+ */
+
+void ns_exec();
+
 #endif

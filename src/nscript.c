@@ -21,23 +21,25 @@ void ns_init()
     ns_currNamespace = ns_builtinsSpace;
 }
 /* ------------------ */
-void ns_interpret(const char *code, struct ns_namespace *parent)
+void ns_interpretInNamespace(const char *code, struct ns_namespace *ns)
 {
     const char *curr;
     char *bufptr;
     struct dynarr *buf = dynarr_new();
-    struct ns_namespace *oldNamespace = ns_currNamespace;
-    ns_currNamespace = ns_newNamespace(parent);
+    struct ns_namespace *oldns = ns_currNamespace;
+    ns_currNamespace = ns;
 
     enum
     {
+        MD_NONE,
+
         MD_READINT,
         MD_READFLOATPART,
         MD_READSTR,
-        MD_READNAME,
         MD_READBLOCK,
-        MD_READVARNAME,
-        MD_NONE
+
+        MD_GETVAR,
+        MD_SETVAR,
     };
 
     int mode = MD_NONE;
@@ -63,7 +65,7 @@ void ns_interpret(const char *code, struct ns_namespace *parent)
                     if (negative)
                         break;
 
-                    goto do_int;
+                    goto read_int;
                 }
                 //String constant.
                 else if (*curr == '\'' || *curr == '"')
@@ -79,7 +81,7 @@ void ns_interpret(const char *code, struct ns_namespace *parent)
                 else if (*curr == '&')
                 {
                     callFunc = 0;
-                    mode = MD_READNAME;
+                    mode = MD_GETVAR;
 
                     dynarr_clear(buf);
 
@@ -101,7 +103,7 @@ void ns_interpret(const char *code, struct ns_namespace *parent)
                 //Variable definition.
                 else if (*curr == '$')
                 {
-                    mode = MD_READVARNAME;
+                    mode = MD_SETVAR;
 
                     dynarr_clear(buf);
 
@@ -110,16 +112,16 @@ void ns_interpret(const char *code, struct ns_namespace *parent)
                 //Variable read.
                 else if (!isspace(*curr))
                 {
-                    mode = MD_READNAME;
+                    mode = MD_GETVAR;
 
                     dynarr_clear(buf);
 
-                    goto do_name;
+                    goto get_var;
                 }
                 break;
 
             case MD_READINT:
-do_int:
+read_int:
                 if (isdigit(*curr))
                     ns_stack->obj.u.i = ns_stack->obj.u.i * 10 + *curr - '0';
                 else if (*curr == '.')
@@ -222,34 +224,6 @@ do_int:
                 }
                 break;
 
-            case MD_READNAME:
-do_name:
-                if (!isspace(*curr))
-                    dynarr_append(buf, *curr);
-                else
-                {
-                    dynarr_append(buf, '\0');
-                    mode = MD_NONE;
-
-                    struct ns_obj obj = *ns_searchNamespaceInherit(ns_currNamespace, buf->arr);
-
-                    if (obj.type != TY_EMPTY)
-                    {
-                        if (callFunc && NS_ISEXECUTABLE(obj))
-                            ns_execute(obj);
-                        else
-                            ns_push(obj);
-                        goto finish;
-                    }
-
-                    ns_error("Variable '%s' not found!", buf->arr);
-
-finish:
-                    //Reset for next time.
-                    callFunc = 1;
-                }
-                break;
-
             case MD_READBLOCK:
                 if (*curr == '{')
                     ++blockDepth;
@@ -271,7 +245,35 @@ finish:
                 }
                 break;
 
-            case MD_READVARNAME:
+            case MD_GETVAR:
+get_var:
+                if (!isspace(*curr))
+                    dynarr_append(buf, *curr);
+                else
+                {
+                    dynarr_append(buf, '\0');
+                    mode = MD_NONE;
+
+                    struct ns_obj obj = *ns_searchNamespaceInherit(ns_currNamespace, buf->arr);
+
+                    if (obj.type != TY_EMPTY)
+                    {
+                        if (callFunc && NS_ISEXECUTABLE(obj))
+                            ns_execute(obj);
+                        else
+                            ns_push(obj);
+                        goto fin_get_var;
+                    }
+
+                    ns_error("Variable '%s' not found!", buf->arr);
+
+fin_get_var:
+                    //Reset for next time.
+                    callFunc = 1;
+                }
+                break;
+
+            case MD_SETVAR:
                 if (!isspace(*curr))
                     dynarr_append(buf, *curr);
                 else
@@ -291,7 +293,12 @@ finish:
 
     dynarr_free(buf);
 
-    ns_currNamespace = oldNamespace;
+    ns_currNamespace = oldns;
+}
+/* ------------------ */
+void ns_interpretInChild(const char *code, struct ns_namespace *parent)
+{
+    ns_interpretInNamespace(code, ns_newNamespace(parent));
 }
 /* ------------------ */
 void ns_execute(struct ns_obj obj)
@@ -303,7 +310,7 @@ void ns_execute(struct ns_obj obj)
             break;
 
         case TY_BLOCK:
-            ns_interpret(obj.u.b->arr, ns_currNamespace);
+            ns_interpretInChild(obj.u.b->arr, ns_currNamespace);
             break;
     }
 }
