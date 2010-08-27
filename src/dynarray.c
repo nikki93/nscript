@@ -50,7 +50,7 @@ int dynarr_insert(struct dynarr *array, unsigned int pos, dynarr_info_t info)
     else if (pos == array->size)
         return dynarr_append(array, info);
 
-    int alloc = dynarr_resize_down(array, ++array->size);
+    int alloc = dynarr_resize_up(array, ++array->size);
 
     int move_size = array->size - pos - 1;    /* Old size, so -1 */
     memmove(array->arr + pos + 1, array->arr + pos, move_size * sizeof(dynarr_info_t));

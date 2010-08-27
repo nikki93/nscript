@@ -22,7 +22,7 @@
     &* p repeat
 } $^
 
-2 3 ^ print
+3 4 ^ print
 "\n" print
 
 #Here we assign a number to the variable !^&.

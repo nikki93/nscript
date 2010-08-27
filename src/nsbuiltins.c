@@ -348,10 +348,6 @@ struct ns_namemap ns_builtinsMap[] =
 {
     /* Functions. */
     { "print", { TY_FUNC, { .f = ns_print } } },
-    { "add", { TY_FUNC, { .f = ns_add } } },
-    { "subtract", { TY_FUNC, { .f = ns_subtract } } },
-    { "multiply", { TY_FUNC, { .f = ns_multiply } } },
-    { "divide", { TY_FUNC, { .f = ns_divide } } },
     { "exit", { TY_FUNC, { .f = ns_exit } } },
     { "repeat", { TY_FUNC, { .f = ns_repeat } } },
     { "dup", { TY_FUNC, { .f = ns_dup } } },

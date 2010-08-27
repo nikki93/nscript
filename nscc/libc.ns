@@ -11,4 +11,8 @@ ns_pop
 { "true\n" print } $t
 "false" t ns_pop
 # print
+"banana" $str
+"The length of the string '" print $str print "' is: " print
+$str strlen print
+"\n" print
 exit

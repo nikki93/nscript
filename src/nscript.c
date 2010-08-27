@@ -235,7 +235,7 @@ do_name:
 
                     if (obj.type != TY_EMPTY)
                     {
-                        if (callFunc && ns_isExecutable(obj))
+                        if (callFunc && NS_ISEXECUTABLE(obj))
                             ns_execute(obj);
                         else
                             ns_push(obj);

@@ -6,11 +6,6 @@
 
 struct ns_obj ns_defaultObj = { TY_EMPTY, { .i = 0 } };
 /* ------------------ */
-int ns_isExecutable(struct ns_obj obj)
-{
-    return obj.type == TY_FUNC || obj.type == TY_BLOCK;
-}
-/* ------------------ */
 struct ns_obj ns_makeBoolObj(int b)
 {
     struct ns_obj obj = { TY_BOOL, { .bo = b } };

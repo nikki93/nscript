@@ -53,17 +53,12 @@ struct ns_obj
 };
 
 /*
- * Whether an object is executable (function, block etc.).
- */
-int ns_isExecutable(struct ns_obj obj);
-
-/*
  * 'default' object, returned if object not found etc.
  */
 extern struct ns_obj ns_defaultObj;
 
 /*
- * Make objects.
+ * C -> nscript.
  */
 struct ns_obj ns_makeBoolObj(int b);
 struct ns_obj ns_makeIntObj(int i);
@@ -73,16 +68,17 @@ struct ns_obj ns_makeStrObj(char *c);
 struct ns_obj ns_makeFuncObj(ns_cFunc f);
 
 /*
- * Get C types from objects.
+ * nscript -> C.
  */
 #define NS_INTFROMOBJ(obj) ((obj).u.i)
 #define NS_FLOATFROMOBJ(obj) ((obj).u.fl)
 #define NS_STRFROMOBJ(obj) ((obj).u.s)
 
 /*
- * Whether an object is a number.
+ * Type checks.
  */
 #define NS_ISNUM(obj) ((obj).type == TY_INT || (obj).type == TY_FLOAT)
+#define NS_ISEXECUTABLE(obj) ((obj).type == TY_FUNC || (obj).type == TY_BLOCK)
 
 /*
  * Convert an integer object to a float object.
