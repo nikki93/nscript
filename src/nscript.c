@@ -21,14 +21,41 @@ void ns_init()
     ns_currNamespace = ns_builtinsSpace;
 }
 /* ------------------ */
-void ns_interpretInNamespace(const char *code, struct ns_namespace *ns)
+struct ns_interpContext *ns_pushContext()
 {
-    const char *curr;
-    char *bufptr;
-    struct dynarr *buf = dynarr_new();
-    struct ns_namespace *oldns = ns_currNamespace;
-    ns_currNamespace = ns;
+    struct ns_interpContext *newCon = malloc(sizeof(struct ns_interpContext));
+    newCon->line = 0;
+    newCon->lineNo = 1;
+    newCon->parent = ns_currContext;
+    return ns_currContext = newCon;
+}
+/* ------------------ */
+void ns_popContext()
+{
+    struct ns_interpContext *parent = ns_currContext->parent;
+    free(ns_currContext);
+    ns_currContext = parent;
+}
+/* ------------------ */
+void ns_printContext()
+{
+    struct ns_interpContext *con;
+    for (con = ns_currContext; con; con = con->parent)
+    {
+        fprintf(stderr, "%s:%d:\t", con->filename, con->lineNo);
 
+        const char *c = con->line;
+        while (isspace(*c))
+            ++c;
+        while (*c && *c != '\n')
+            putc(*c++, stderr);
+        putc('\n', stderr);
+        putc('\n', stderr);
+    }
+}
+/* ------------------ */
+void ns_interpretInNamespace(const char *code, const char *filename, struct ns_namespace *ns)
+{
     enum
     {
         MD_NONE,
@@ -46,13 +73,22 @@ void ns_interpretInNamespace(const char *code, struct ns_namespace *ns)
     int callFunc = 1;
     int blockDepth = 0;
     int negative = 0;
+    int blockLine;
     char stringChar = 0;
     double floatMult = 0.1;
 
+    const char *curr = code, p;
+    struct dynarr *buf = dynarr_new();
+
+    struct ns_namespace *oldns = ns_currNamespace;
+    ns_currNamespace = ns;
+
+    struct ns_interpContext *con = ns_pushContext();
+    con->line = curr;
+    con->filename = filename;
+
     do
     {
-        curr = code++;
-
         switch (mode)
         {
             case MD_NONE:
@@ -92,6 +128,7 @@ void ns_interpretInNamespace(const char *code, struct ns_namespace *ns)
                 {
                     mode = MD_READBLOCK;
                     blockDepth = 1;
+                    blockLine = con->lineNo;
 
                     dynarr_clear(buf);
 
@@ -99,7 +136,10 @@ void ns_interpretInNamespace(const char *code, struct ns_namespace *ns)
                 }
                 //Comment.
                 else if (*curr == '#')
-                    while (*++code && (*code != '\n'));
+                {
+                    while (*++curr && (*curr != '\n'));
+                    --curr; /* To go over the newline again. */
+                }
                 //Variable definition.
                 else if (*curr == '$')
                 {
@@ -166,7 +206,7 @@ read_int:
                         if (*curr == '\'' && *(curr + 1) == '\'')
                         {
                             c = '\'';
-                            ++code;
+                            ++curr;
                         }
                     }
                     else if (*curr == '\\')
@@ -174,42 +214,42 @@ read_int:
                         {
                             case 'n':
                                 c = '\n';
-                                ++code;
+                                ++curr;
                                 break;
 
                             case 't':
                                 c = '\t';
-                                ++code;
+                                ++curr;
                                 break;
 
                             case 'v':
                                 c = '\v';
-                                ++code;
+                                ++curr;
                                 break;
 
                             case 'b':
                                 c = '\b';
-                                ++code;
+                                ++curr;
                                 break;
 
                             case 'r':
                                 c = '\r';
-                                ++code;
+                                ++curr;
                                 break;
 
                             case 'f':
                                 c = '\f';
-                                ++code;
+                                ++curr;
                                 break;
 
                             case 'a':
                                 c = '\a';
-                                ++code;
+                                ++curr;
                                 break;
 
                             default:
                                 c = *(curr + 1);
-                                ++code;
+                                ++curr;
                                 break;
                         }
 
@@ -237,9 +277,13 @@ read_int:
 
                     struct ns_obj obj;
                     obj.type = TY_BLOCK;
-                    obj.u.b = dynarr_new();
-                    dynarr_resize_up(obj.u.b, buf->size);
-                    strcpy(obj.u.b->arr, buf->arr);
+
+                    obj.u.b.str = dynarr_new_alloc(buf->size);
+                    strcpy(obj.u.b.str->arr, buf->arr);
+
+                    obj.u.b.file = dynarr_new_alloc(strlen(filename) + 7);
+                    sprintf(obj.u.b.file->arr, "%s-%d", filename, blockLine);
+
                     ns_push(obj);
                     mode = MD_NONE;
                 }
@@ -289,16 +333,23 @@ fin_get_var:
                 }
                 break;
         }
-    } while (*curr);
+
+        if (*curr == '\n')
+        {
+            con->line = curr + 1;
+            ++con->lineNo;
+        }
+    } while (*curr++);
 
     dynarr_free(buf);
+    ns_popContext();
 
     ns_currNamespace = oldns;
 }
 /* ------------------ */
-void ns_interpretInChild(const char *code, struct ns_namespace *parent)
+void ns_interpretInChild(const char *code, const char *filename, struct ns_namespace *parent)
 {
-    ns_interpretInNamespace(code, ns_newNamespace(parent));
+    ns_interpretInNamespace(code, filename, ns_newNamespace(parent));
 }
 /* ------------------ */
 void ns_execute(struct ns_obj obj)
@@ -310,7 +361,7 @@ void ns_execute(struct ns_obj obj)
             break;
 
         case TY_BLOCK:
-            ns_interpretInChild(obj.u.b->arr, ns_currNamespace);
+            ns_interpretInChild(obj.u.b.str->arr, obj.u.b.file->arr, ns_currNamespace);
             break;
     }
 }

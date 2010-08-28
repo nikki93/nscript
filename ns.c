@@ -20,13 +20,13 @@
 #include <nsstack.h>
 #include <nsbuiltins.h>
 
-void runString(const char *str)
+void runString(const char *str, const char *filename)
 {
     ns_init();
-    ns_interpretInChild(str, ns_builtinsSpace);
+    ns_interpretInChild(str, filename, ns_builtinsSpace);
 }
 
-void runFile(FILE *file)
+void runFile(FILE *file, const char *filename)
 {
     struct dynarr *str = dynarr_new();
 
@@ -35,7 +35,7 @@ void runFile(FILE *file)
         dynarr_append(str, (char) c);
     dynarr_append(str, '\0');
 
-    runString(str->arr);
+    runString(str->arr, filename);
 }
 
 void repl()
@@ -52,7 +52,7 @@ void repl()
         if (!fgets(buf, sizeof(buf), stdin))
             break;
         printf("\n");
-        ns_interpretInNamespace(buf, replSpace);
+        ns_interpretInNamespace(buf, "<repl>", replSpace);
         printf("\n\n");
     }
 
@@ -69,11 +69,11 @@ int main(int argc, char *argv[])
 {
     if (argc > 1)
         if (!strcmp(argv[1], "-"))
-            runFile(stdin);
+            runFile(stdin, "<stdin>");
         else if (!strcmp(argv[1], "-h"))
             showHelp(argv[0]);
         else
-            runFile(fopen(argv[1], "r"));
+            runFile(fopen(argv[1], "r"), argv[1]);
     else
         repl();
 

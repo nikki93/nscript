@@ -48,7 +48,11 @@ struct ns_obj
         double fl;                             //TY_FLOAT
         struct dynarr *s;                      //TY_STR
         ns_cFunc f;                            //TY_FUNC
-        struct dynarr *b;                      //TY_BLOCK
+        struct ns_block
+        {
+            struct dynarr *file;
+            struct dynarr *str;                  
+        } b;                                   //TY_BLOCK
     } u;
 };
 
@@ -76,6 +80,8 @@ struct ns_obj ns_makeFuncObj(ns_cFunc f);
 
 /*
  * Type checks.
+ *
+ * TODO: Make a function due to double evaluation of 'obj'?
  */
 #define NS_ISNUM(obj) ((obj).type == TY_INT || (obj).type == TY_FLOAT)
 #define NS_ISEXECUTABLE(obj) ((obj).type == TY_FUNC || (obj).type == TY_BLOCK)

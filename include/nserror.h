@@ -17,6 +17,7 @@
 #define __NSERROR_H__
 
 #include <stdio.h>
+#include <nscript.h>
 
 /*
  * Shows an error message.
@@ -24,8 +25,11 @@
 #define ns_error(fmt, ...)                                                                     \
 do                                                                                             \
 {                                                                                              \
+    fprintf(stderr, "\nError: ");                                                              \
     fprintf(stderr, fmt, ##__VA_ARGS__);                                                       \
-    putchar('\n');                                                                             \
+    putc('\n', stderr);                                                                        \
+    putc('\n', stderr);                                                                        \
+    ns_printContext();                                                                         \
     exit(1);                                                                                   \
 } while (0)
 

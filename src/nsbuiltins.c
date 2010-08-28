@@ -45,7 +45,7 @@ void ns_print()
             break;
 
         case TY_BLOCK:
-            printf("{%s}", obj.u.b->arr);
+            printf("{%s}", obj.u.b.str->arr);
             break;
     }
 }
@@ -291,7 +291,7 @@ void ns_equals()
                 break;
 
             case TY_BLOCK:
-                ans.u.bo = !strcmp(obj1.u.b->arr, obj2.u.b->arr);
+                ans.u.bo = !strcmp(obj1.u.b.str->arr, obj2.u.b.str->arr);
                 break;
         }
 
