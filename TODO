@@ -6,6 +6,8 @@ Todo
 
 - Format string output.
 
+- Clean up interpreter code.
+
 - Use an array for stack instead of linked list?
 
 - Move everything into 'nsvm' struct to allow multiple nscript vms in

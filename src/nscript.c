@@ -50,11 +50,10 @@ void ns_printContext()
         while (*c && *c != '\n')
             putc(*c++, stderr);
         putc('\n', stderr);
-        putc('\n', stderr);
     }
 }
 /* ------------------ */
-void ns_interpretInNamespace(const char *code, const char *filename, struct ns_namespace *ns)
+void ns_interpret(const char *code, const char *filename, int lineNo, struct ns_namespace *ns)
 {
     enum
     {
@@ -85,6 +84,7 @@ void ns_interpretInNamespace(const char *code, const char *filename, struct ns_n
 
     struct ns_interpContext *con = ns_pushContext();
     con->line = curr;
+    con->lineNo = lineNo;
     con->filename = filename;
 
     do
@@ -281,8 +281,10 @@ read_int:
                     obj.u.b.str = dynarr_new_alloc(buf->size);
                     strcpy(obj.u.b.str->arr, buf->arr);
 
-                    obj.u.b.file = dynarr_new_alloc(strlen(filename) + 7);
-                    sprintf(obj.u.b.file->arr, "%s-%d", filename, blockLine);
+                    obj.u.b.file = dynarr_new_alloc(strlen(filename));
+                    strcpy(obj.u.b.file->arr, filename);
+
+                    obj.u.b.lineNo = blockLine;
 
                     ns_push(obj);
                     mode = MD_NONE;
@@ -291,7 +293,7 @@ read_int:
 
             case MD_GETVAR:
 get_var:
-                if (!isspace(*curr))
+                if (*curr && !isspace(*curr))
                     dynarr_append(buf, *curr);
                 else
                 {
@@ -347,11 +349,6 @@ fin_get_var:
     ns_currNamespace = oldns;
 }
 /* ------------------ */
-void ns_interpretInChild(const char *code, const char *filename, struct ns_namespace *parent)
-{
-    ns_interpretInNamespace(code, filename, ns_newNamespace(parent));
-}
-/* ------------------ */
 void ns_execute(struct ns_obj obj)
 {
     switch (obj.type)
@@ -361,7 +358,7 @@ void ns_execute(struct ns_obj obj)
             break;
 
         case TY_BLOCK:
-            ns_interpretInChild(obj.u.b.str->arr, obj.u.b.file->arr, ns_currNamespace);
+            ns_interpretInChildLine(obj.u.b.str->arr, obj.u.b.file->arr, obj.u.b.lineNo, ns_currNamespace);
             break;
     }
 }

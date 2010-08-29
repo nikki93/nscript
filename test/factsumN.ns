@@ -25,5 +25,10 @@
     } ifelse
 } $fact
 
-10 fact print "\n" print
 
+"10 factorial: " print 10 fact print "\n" print
+
+#Now we create a sumN function to sum first n numbers using this fact function.
+{ &+ $* fact } $sumN
+
+"Sum of integers 1 to 100: " print 100 sumN print "\n" print

@@ -1,7 +1,7 @@
 #Prints the fibonacci sequence for n > 2.
 
 #Prints something and adds a space after it
-{ print ' ' print } $spacePrint                    
+{ print ' ' print 1 0 / } $spacePrint                    
 
 {
     #Add last two on stack, but keep them on stack.
@@ -17,17 +17,19 @@
     #Print first two terms.
     '0 1 ' print                                  
 
-    #Put first two terms, but 'rot' to keep the repeat index last.
+    #Put first two terms, but 'rot' to keep the 
+    #repeat index last.
     0 rot 1 rot                                     
 
-    #Put reference to _fib, but 'rot' to keep the repeat index last.
+    #Put reference to _fib, but 'rot' to keep the 
+    #repeat index last.
     &_fib rot                                       
 
     #Runs _fib n times.
     repeat                                          
 } $fib
 
-12 fib
+25 fib
 
 "\n" print
 

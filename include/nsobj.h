@@ -51,6 +51,7 @@ struct ns_obj
         struct ns_block
         {
             struct dynarr *file;
+            int lineNo;
             struct dynarr *str;                  
         } b;                                   //TY_BLOCK
     } u;
