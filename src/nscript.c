@@ -150,7 +150,7 @@ void ns_interpret(const char *code, const char *filename, int lineNo, struct ns_
                     break;
                 }
                 //Variable read.
-                else if (!isspace(*curr))
+                else if (*curr && !isspace(*curr))
                 {
                     mode = MD_GETVAR;
 
@@ -162,7 +162,7 @@ void ns_interpret(const char *code, const char *filename, int lineNo, struct ns_
 
             case MD_READINT:
 read_int:
-                if (isdigit(*curr))
+                if (*curr && isdigit(*curr))
                     ns_stack->obj.u.i = ns_stack->obj.u.i * 10 + *curr - '0';
                 else if (*curr == '.')
                 {
@@ -179,7 +179,7 @@ read_int:
                 break;
 
             case MD_READFLOATPART:
-                if (isdigit(*curr))
+                if (*curr && isdigit(*curr))
                 {
                     ns_stack->obj.u.fl += floatMult * (*curr - '0');
                     floatMult *= 0.1;
@@ -270,7 +270,12 @@ read_int:
                 if (*curr == '}')
                     --blockDepth;
                 if (blockDepth > 0)
+                {
+                    if (!*curr)
+                        ns_error("ns_interpret: Unexpected end of file! "
+                                "Expected %d closing braces.", blockDepth);
                     dynarr_append(buf, *curr);
+                }
                 else
                 {
                     dynarr_append(buf, '\0');
@@ -320,7 +325,7 @@ fin_get_var:
                 break;
 
             case MD_SETVAR:
-                if (!isspace(*curr))
+                if (*curr && !isspace(*curr))
                     dynarr_append(buf, *curr);
                 else
                 {

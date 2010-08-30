@@ -19,7 +19,7 @@
 #include <dynarray.h>
 #include <string.h>
 
-typedef void (*ns_cFunc) ();
+typedef void (*ns_cFunc) (void);
 
 /*
  * Variable/constant types.
@@ -75,15 +75,23 @@ struct ns_obj ns_makeFuncObj(ns_cFunc f);
 /*
  * nscript -> C.
  */
+#define NS_BOOLFROMOBJ(obj) ((obj).u.bo)
 #define NS_INTFROMOBJ(obj) ((obj).u.i)
 #define NS_FLOATFROMOBJ(obj) ((obj).u.fl)
 #define NS_STRFROMOBJ(obj) ((obj).u.s)
+#define NS_FUNCFROMOBJ(obj) ((obj).u.f)
 
 /*
  * Type checks.
  *
  * TODO: Make a function due to double evaluation of 'obj'?
  */
+#define NS_ISBOOL(obj) ((obj).type == TY_BOOL)
+#define NS_ISINT(obj) ((obj).type == TY_INT)
+#define NS_ISFLOAT(obj) ((obj).type == TY_FLOAT)
+#define NS_ISSTR(obj) ((obj).type == TY_STR)
+#define NS_ISFUNC(obj) ((obj).type == TY_FUNC)
+#define NS_ISBLOCK(obj) ((obj).type == TY_BLOCK)
 #define NS_ISNUM(obj) ((obj).type == TY_INT || (obj).type == TY_FLOAT)
 #define NS_ISEXECUTABLE(obj) ((obj).type == TY_FUNC || (obj).type == TY_BLOCK)
 

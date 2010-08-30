@@ -69,6 +69,13 @@ void ns_interpret(const char *code, const char *filename, int lineNo, struct ns_
     { \
         ns_interpret(code, filename, line, ns_newNamespace(ns)); \
     } while (0)
+#define ns_interpretString(code, ns) \
+    ns_interpret(code, "<string>", 1, ns)
+#define ns_interpretStringInChild(code, ns) \
+    do \
+    { \
+        ns_interpret(code, "<string>", 1, ns_newNamespace(ns)); \
+    } while (0)
 
 /*
  * Executes an object.

@@ -1,5 +1,5 @@
-Was made in a few hours, doesn't have most features you'd expect, is
-buggy and messy. Still pretty fun though. :P
+nscript is a stack based scripting langauge. Check out the examples in
+the 'test' directory.
 
 Building 
 -------- 
