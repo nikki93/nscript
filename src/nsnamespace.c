@@ -4,10 +4,7 @@
 
 #include <stdlib.h>
 
-#include <nsobj.h>
-#include <nsbuiltins.h>
-
-#include <nsnamespace.h>
+#include <nscript.h>
 
 struct ns_namespace *ns_newNamespace(struct ns_namespace *parent)
 {

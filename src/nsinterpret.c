@@ -1,16 +1,10 @@
 /*
- * nscript.c
+ * nsinterpret.c
  */
 
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <nsobj.h>
-#include <nserror.h>
-#include <nsnamespace.h>
-#include <nsbuiltins.h>
-#include <nsstack.h>
 
 #include <nscript.h>
 
@@ -53,7 +47,8 @@ void ns_printContext()
     }
 }
 /* ------------------ */
-void ns_interpret(const char *code, const char *filename, int lineNo, struct ns_namespace *ns)
+void ns_interpret(const char *code, const char *filename, int lineNo, struct 
+        ns_namespace *ns)
 {
     enum
     {
@@ -93,7 +88,8 @@ void ns_interpret(const char *code, const char *filename, int lineNo, struct ns_
         {
             case MD_NONE:
                 //Integer constant. Will convert to float if there's a '.'.
-                if (isdigit(*curr) || (*(curr + 1) && (*curr == '-') && isdigit(*(curr + 1)) && (negative = 1)))
+                if (isdigit(*curr) || (*(curr + 1) && (*curr == '-') && 
+                            isdigit(*(curr + 1)) && (negative = 1)))
                 {
                     mode = MD_READINT;
                     ns_push(ns_makeIntObj(0));
@@ -195,12 +191,14 @@ read_int:
                 break;
 
             case MD_READSTR:
-                if (*curr != stringChar || (stringChar == '\'' && (*(curr + 1) == '\'')))
+                if (*curr != stringChar || 
+                        (stringChar == '\'' && (*(curr + 1) == '\'')))
                 {
                     char c = *curr;
 
-                    //Escape sequences. If the string is delimited by ', the only escape sequence is '',
-                    //if it's delimited by ", do the usual C escape sequences.
+                    //Escape sequences. If the string is delimited by ', the only 
+                    //escape sequence is '', if it's delimited by ", do the usual 
+                    //C escape sequences.
                     if (stringChar == '\'')
                     {
                         if (*curr == '\'' && *(curr + 1) == '\'')
@@ -305,7 +303,8 @@ get_var:
                     dynarr_append(buf, '\0');
                     mode = MD_NONE;
 
-                    struct ns_obj obj = *ns_searchNamespaceInherit(ns_currNamespace, buf->arr);
+                    struct ns_obj obj = *ns_searchNamespaceInherit(ns_currNamespace, 
+                            buf->arr);
 
                     if (obj.type != TY_EMPTY)
                     {
@@ -330,7 +329,8 @@ fin_get_var:
                 else
                 {
                     dynarr_append(buf, '\0');
-                    struct ns_obj *obj = ns_searchNamespace(ns_currNamespace, buf->arr);
+                    struct ns_obj *obj = ns_searchNamespace(ns_currNamespace, 
+                            buf->arr);
 
                     if (obj->type != TY_EMPTY)
                         *obj = ns_pop();
@@ -352,19 +352,5 @@ fin_get_var:
     ns_popContext();
 
     ns_currNamespace = oldns;
-}
-/* ------------------ */
-void ns_execute(struct ns_obj obj)
-{
-    switch (obj.type)
-    {
-        case TY_FUNC:
-            obj.u.f();
-            break;
-
-        case TY_BLOCK:
-            ns_interpretInChildLine(obj.u.b.str->arr, obj.u.b.file->arr, obj.u.b.lineNo, ns_currNamespace);
-            break;
-    }
 }
 

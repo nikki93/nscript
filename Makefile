@@ -4,7 +4,7 @@ CFLAGS+=-Iinclude/ -c -g
 LDFLAGS+=-L. -g
 DESTDIR?=
 PREFIX?=/usr/local
-SOURCES=src/dynarray.c src/nscript.c src/nsbuiltins.c src/nsnamespace.c src/nsobj.c src/nsstack.c src/trie.c
+SOURCES=src/nsinterpret.c src/nsbuiltins.c src/nsnamespace.c src/nsobj.c src/nsstack.c src/trie.c src/dynarray.c 
 OBJECTS=$(SOURCES:.c=.o)
 LIBRARY=libnscript.a
 
@@ -23,9 +23,8 @@ clean:
 install:
 	mkdir -p ${DESTDIR}/${PREFIX}/lib
 	cp libnscript.a ${DESTDIR}/${PREFIX}/lib
-	rm -rf ${DESTDIR}/${PREFIX}/include/nscript
-	mkdir -p ${DESTDIR}/${PREFIX}/include/nscript
-	cp -rf include/* ${DESTDIR}/${PREFIX}/include/nscript
+	rm -f ${DESTDIR}/${PREFIX}/include/nscript.h
+	cp -f include/nscript.h ${DESTDIR}/${PREFIX}/include/nscript.h
 	mkdir -p ${DESTDIR}/${PREFIX}/bin
 	cp ns ${DESTDIR}/${PREFIX}/bin
 	cp nscc/nscc ${DESTDIR}/${PREFIX}/bin
@@ -33,7 +32,7 @@ install:
 uninstall deinstall:
 	rm -f ${DESTDIR}/${PREFIX}/bin/ns
 	rm -f ${DESTDIR}/${PREFIX}/bin/nscc
-	rm -rf ${DESTDIR}/${PREFIX}/include/nscript
+	rm -f ${DESTDIR}/${PREFIX}/include/nscript.h
 	rm -f ${DESTDIR}/${PREFIX}/lib/libnscript.a
 
 libnscript: $(SOURCES) $(LIBRARY)

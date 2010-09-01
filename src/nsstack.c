@@ -4,9 +4,7 @@
 
 #include <stdlib.h>
 
-#include <nserror.h>
-
-#include <nsstack.h>
+#include <nscript.h>
 
 void ns_initStack()
 {

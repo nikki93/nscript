@@ -1,13 +1,11 @@
 /*
- * dynarr.c
- *
- * Dynarray implementation.
+ * dynarray.c
  */
 
 #include <stdlib.h>
 #include <string.h>
 
-#include <dynarray.h>
+#include <nscript.h>
 
 struct dynarr *dynarr_new()
 {

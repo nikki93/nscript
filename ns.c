@@ -17,8 +17,6 @@
 #include <stdlib.h>
 
 #include <nscript.h>
-#include <nsstack.h>
-#include <nsbuiltins.h>
 
 void runString(const char *str, const char *filename)
 {

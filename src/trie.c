@@ -1,12 +1,10 @@
 /*
  * trie.c
- *
- * Trie implementation.
  */
 
 #include <stdlib.h>
 
-#include <trie.h>
+#include <nscript.h>
 
 struct trie *trie_new()
 {

@@ -3,14 +3,8 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
 
-#include <nsobj.h>
-#include <nsstack.h>
-#include <nserror.h>
-#include <nsnamespace.h>
-
-#include <nsbuiltins.h>
+#include <nscript.h>
 
 /*
  * IO/System
