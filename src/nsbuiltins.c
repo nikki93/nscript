@@ -29,6 +29,22 @@ void ns_add()
     }
 }
 /* ------------------ */
+void ns_assign()
+{
+    struct ns_obj s = ns_pop();
+    struct ns_obj o = ns_pop();
+
+    if (!NS_ISSYM(s))
+        ns_error("assign: Need a symbol to identify variable to assign to!");
+
+    struct ns_obj *p = ns_searchNamespaceInherit(ns_currNamespace, s.u.sym->arr);
+
+    if (p->type != TY_EMPTY)
+        *p = o;
+    else
+        ns_addToNamespace(ns_currNamespace, s.u.sym->arr, o);
+}
+/* ------------------ */
 void ns_at()
 {
     struct ns_obj pos = ns_pop();
@@ -264,6 +280,10 @@ void ns_print()
         case TY_BLOCK:
             printf("{%s}", obj.u.b.str->arr);
             break;
+
+        case TY_SYM:
+            printf("&%s", obj.u.sym->arr);
+            break;
     }
 }
 /* ------------------ */
@@ -380,6 +400,7 @@ struct ns_namemap ns_builtinsMap[] =
     { "*", { TY_FUNC, { .f = ns_multiply } } },
     { "/", { TY_FUNC, { .f = ns_divide } } },
     { "==", { TY_FUNC, { .f = ns_equals } } },
+    { "=", { TY_FUNC, { .f = ns_assign } } },
 
     /* Constants. */
     { "true", { TY_BOOL, { .bo = 1 } } },
