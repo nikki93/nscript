@@ -6,10 +6,216 @@
 
 #include <nscript.h>
 
-/*
- * IO/System
- */
+void ns_add()
+{
+    struct ns_obj a = ns_pop();
 
+    if (!(NS_ISNUM(a) && NS_ISNUM(ns_stack->obj)))
+        ns_error("add: Attempted to add non-numbers!");
+
+    if (a.type == TY_FLOAT && ns_stack->obj.type == TY_FLOAT)
+        ns_stack->obj.u.fl += a.u.fl;
+    else if (a.type == TY_INT && ns_stack->obj.type == TY_INT)
+        ns_stack->obj.u.i += a.u.i;
+    else if (a.type == TY_INT)
+    {
+        NS_INTTOFLOAT(a);
+        ns_stack->obj.u.fl += a.u.fl;
+    }
+    else if (ns_stack->obj.type == TY_INT)
+    {
+        NS_INTTOFLOAT(ns_stack->obj);
+        ns_stack->obj.u.fl += a.u.fl;
+    }
+}
+/* ------------------ */
+void ns_at()
+{
+    struct ns_obj pos = ns_pop();
+
+    if (pos.type != TY_INT)
+        ns_error("at: Need integer position!");
+
+    if (pos.u.i >= ns_stackSize)
+        ns_error("at: Position out of bounds!");
+
+    struct ns_stack *curr = ns_stack;
+    while (pos.u.i--)
+        curr = curr->next;
+
+    ns_push(curr->obj);
+}
+/* ------------------ */
+void ns_divide()
+{
+    struct ns_obj a = ns_pop();
+
+    if (!(NS_ISNUM(a) && NS_ISNUM(ns_stack->obj)))
+        ns_error("divide: Attempted to find the quotient of non-numbers!");
+
+    if (a.type == TY_FLOAT && ns_stack->obj.type == TY_FLOAT)
+    {
+        if (a.u.fl == 0)
+            ns_error("divide: Attempted divide by zero!");
+        ns_stack->obj.u.fl /= a.u.fl;
+    }
+    else if (a.type == TY_INT && ns_stack->obj.type == TY_INT)
+    {
+        if (a.u.i == 0)
+            ns_error("divide: Attempted divide by zero!");
+        ns_stack->obj.u.i /= a.u.i;
+    }
+    else if (a.type == TY_INT)
+    {
+        if (a.u.fl == 0)
+            ns_error("divide: Attempted divide by zero!");
+        NS_INTTOFLOAT(a);
+        ns_stack->obj.u.fl /= a.u.fl;
+    }
+    else if (ns_stack->obj.type == TY_INT)
+    {
+        if (a.u.fl == 0)
+            ns_error("divide: Attempted divide by zero!");
+        NS_INTTOFLOAT(ns_stack->obj);
+        ns_stack->obj.u.fl /= a.u.fl;
+    }
+}
+/* ------------------ */
+void ns_dup()
+{
+    ns_push(ns_stack->obj);
+}
+/* ------------------ */
+void ns_equals()
+{
+    struct ns_obj obj1 = ns_pop();
+    struct ns_obj obj2 = ns_pop();
+    struct ns_obj ans;
+    ans.type = TY_BOOL;
+
+    if (obj1.type != obj2.type)
+        ans.u.bo = 0;
+    else
+        switch (obj1.type)
+        {
+            case TY_BOOL:
+                ans.u.bo = obj2.u.bo == obj2.u.bo;
+                break;
+
+            case TY_FLOAT:
+                ans.u.bo = obj1.u.fl == obj2.u.fl;
+                break;
+
+            case TY_INT:
+                ans.u.bo = obj1.u.i == obj2.u.i;
+                break;
+
+            case TY_STR:
+                ans.u.bo = !strcmp(obj1.u.s->arr, obj2.u.s->arr);
+                break;
+
+            case TY_FUNC:
+                ans.u.bo = obj1.u.f == obj2.u.f;
+                break;
+
+            case TY_BLOCK:
+                ans.u.bo = !strcmp(obj1.u.b.str->arr, obj2.u.b.str->arr);
+                break;
+        }
+
+    ns_push(ans);
+}
+/* ------------------ */
+void ns_exit()
+{
+    struct ns_obj code = ns_pop();
+
+    if (code.type != TY_INT)
+        ns_error("exit: Need an integer exit code!");
+
+    exit(code.u.i);
+}
+/* ------------------ */
+void ns_getchar()
+{
+    struct ns_obj obj;
+    obj.type = TY_STR;
+    obj.u.s = dynarr_new_alloc(2);
+    obj.u.s->arr[0] = getchar();
+    obj.u.s->arr[1] = '\0';
+
+    ns_push(obj);
+}
+/* ------------------ */
+void ns_getline()
+{
+    struct ns_obj obj;
+    obj.type = TY_STR;
+    obj.u.s = dynarr_new();
+
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
+        dynarr_append(obj.u.s, (char) c);
+
+    ns_push(obj);
+}
+/* ------------------ */
+void ns_if()
+{
+    struct ns_obj code = ns_pop();
+    struct ns_obj cond = ns_pop();
+
+    if (cond.type != TY_BOOL)
+        ns_error("if: Need boolean for condition!");
+    if (code.type != TY_FUNC && code.type != TY_BLOCK)
+        ns_error("if: Need an executable to run!");
+
+    if (cond.u.bo)
+        ns_execute(code);
+}
+/* ------------------ */
+void ns_ifelse()
+{
+    struct ns_obj code2 = ns_pop();
+    struct ns_obj code1 = ns_pop();
+    struct ns_obj cond = ns_pop();
+
+    if (cond.type != TY_BOOL)
+        ns_error("ifelse: Need boolean for condition!");
+    if (code1.type != TY_FUNC && code1.type != TY_BLOCK)
+        ns_error("ifelse: Need an executable to run!");
+    if (code2.type != TY_FUNC && code2.type != TY_BLOCK)
+        ns_error("ifelse: Need an executable to run!");
+
+    if (cond.u.bo)
+        ns_execute(code1);
+    else
+        ns_execute(code2);
+}
+/* ------------------ */
+void ns_multiply()
+{
+    struct ns_obj a = ns_pop();
+
+    if (!(NS_ISNUM(a) && NS_ISNUM(ns_stack->obj)))
+        ns_error("multiply: Attempted to multiply non-numbers!");
+
+    if (a.type == TY_FLOAT && ns_stack->obj.type == TY_FLOAT)
+        ns_stack->obj.u.fl *= a.u.fl;
+    else if (a.type == TY_INT && ns_stack->obj.type == TY_INT)
+        ns_stack->obj.u.i *= a.u.i;
+    else if (a.type == TY_INT)
+    {
+        NS_INTTOFLOAT(a);
+        ns_stack->obj.u.fl *= a.u.fl;
+    }
+    else if (ns_stack->obj.type == TY_INT)
+    {
+        NS_INTTOFLOAT(ns_stack->obj);
+        ns_stack->obj.u.fl *= a.u.fl;
+    }
+}
+/* ------------------ */
 void ns_print()
 {
     struct ns_obj obj = ns_pop();
@@ -59,44 +265,6 @@ void ns_printStack()
     puts("--");
 }
 /* ------------------ */
-void ns_exit()
-{
-    struct ns_obj code = ns_pop();
-
-    if (code.type != TY_INT)
-        ns_error("exit: Need an integer exit code!");
-
-    exit(code.u.i);
-}
-/* ------------------ */
-void ns_getline()
-{
-    struct ns_obj obj;
-    obj.type = TY_STR;
-    obj.u.s = dynarr_new();
-
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF)
-        dynarr_append(obj.u.s, (char) c);
-
-    ns_push(obj);
-}
-/* ------------------ */
-void ns_getchar()
-{
-    struct ns_obj obj;
-    obj.type = TY_STR;
-    obj.u.s = dynarr_new_alloc(2);
-    obj.u.s->arr[0] = getchar();
-    obj.u.s->arr[1] = '\0';
-
-    ns_push(obj);
-}
-
-/*
- * Control structures.
- */
-
 void ns_repeat()
 {
     struct ns_obj num = ns_pop();
@@ -111,64 +279,13 @@ void ns_repeat()
         ns_execute(func);
 }
 /* ------------------ */
-void ns_if()
+void ns_rot()
 {
-    struct ns_obj code = ns_pop();
-    struct ns_obj cond = ns_pop();
-
-    if (cond.type != TY_BOOL)
-        ns_error("if: Need boolean for condition!");
-    if (code.type != TY_FUNC && code.type != TY_BLOCK)
-        ns_error("if: Need an executable to run!");
-
-    if (cond.u.bo)
-        ns_execute(code);
-}
-/* ------------------ */
-void ns_ifelse()
-{
-    struct ns_obj code2 = ns_pop();
-    struct ns_obj code1 = ns_pop();
-    struct ns_obj cond = ns_pop();
-
-    if (cond.type != TY_BOOL)
-        ns_error("ifelse: Need boolean for condition!");
-    if (code1.type != TY_FUNC && code1.type != TY_BLOCK)
-        ns_error("ifelse: Need an executable to run!");
-    if (code2.type != TY_FUNC && code2.type != TY_BLOCK)
-        ns_error("ifelse: Need an executable to run!");
-
-    if (cond.u.bo)
-        ns_execute(code1);
-    else
-        ns_execute(code2);
-}
-
-/*
- * Math
- */
-
-void ns_add()
-{
-    struct ns_obj a = ns_pop();
-
-    if (!(NS_ISNUM(a) && NS_ISNUM(ns_stack->obj)))
-        ns_error("add: Attempted to add non-numbers!");
-
-    if (a.type == TY_FLOAT && ns_stack->obj.type == TY_FLOAT)
-        ns_stack->obj.u.fl += a.u.fl;
-    else if (a.type == TY_INT && ns_stack->obj.type == TY_INT)
-        ns_stack->obj.u.i += a.u.i;
-    else if (a.type == TY_INT)
-    {
-        NS_INTTOFLOAT(a);
-        ns_stack->obj.u.fl += a.u.fl;
-    }
-    else if (ns_stack->obj.type == TY_INT)
-    {
-        NS_INTTOFLOAT(ns_stack->obj);
-        ns_stack->obj.u.fl += a.u.fl;
-    }
+    struct ns_stack *tmp1 = ns_stack->next;
+    struct ns_stack *tmp2 = ns_stack;
+    tmp2->next = tmp1->next;
+    ns_stack = tmp1;
+    ns_stack->next = tmp2;
 }
 /* ------------------ */
 void ns_subtract()
@@ -194,139 +311,6 @@ void ns_subtract()
     }
 }
 /* ------------------ */
-void ns_multiply()
-{
-    struct ns_obj a = ns_pop();
-
-    if (!(NS_ISNUM(a) && NS_ISNUM(ns_stack->obj)))
-        ns_error("multiply: Attempted to multiply non-numbers!");
-
-    if (a.type == TY_FLOAT && ns_stack->obj.type == TY_FLOAT)
-        ns_stack->obj.u.fl *= a.u.fl;
-    else if (a.type == TY_INT && ns_stack->obj.type == TY_INT)
-        ns_stack->obj.u.i *= a.u.i;
-    else if (a.type == TY_INT)
-    {
-        NS_INTTOFLOAT(a);
-        ns_stack->obj.u.fl *= a.u.fl;
-    }
-    else if (ns_stack->obj.type == TY_INT)
-    {
-        NS_INTTOFLOAT(ns_stack->obj);
-        ns_stack->obj.u.fl *= a.u.fl;
-    }
-}
-/* ------------------ */
-void ns_divide()
-{
-    struct ns_obj a = ns_pop();
-
-    if (!(NS_ISNUM(a) && NS_ISNUM(ns_stack->obj)))
-        ns_error("divide: Attempted to find the quotient of non-numbers!");
-
-    if (a.type == TY_FLOAT && ns_stack->obj.type == TY_FLOAT)
-    {
-        if (a.u.fl == 0)
-            ns_error("divide: Attempted divide by zero!");
-        ns_stack->obj.u.fl /= a.u.fl;
-    }
-    else if (a.type == TY_INT && ns_stack->obj.type == TY_INT)
-    {
-        if (a.u.i == 0)
-            ns_error("divide: Attempted divide by zero!");
-        ns_stack->obj.u.i /= a.u.i;
-    }
-    else if (a.type == TY_INT)
-    {
-        if (a.u.fl == 0)
-            ns_error("divide: Attempted divide by zero!");
-        NS_INTTOFLOAT(a);
-        ns_stack->obj.u.fl /= a.u.fl;
-    }
-    else if (ns_stack->obj.type == TY_INT)
-    {
-        if (a.u.fl == 0)
-            ns_error("divide: Attempted divide by zero!");
-        NS_INTTOFLOAT(ns_stack->obj);
-        ns_stack->obj.u.fl /= a.u.fl;
-    }
-}
-/* ------------------ */
-void ns_equals()
-{
-    struct ns_obj obj1 = ns_pop();
-    struct ns_obj obj2 = ns_pop();
-    struct ns_obj ans;
-    ans.type = TY_BOOL;
-
-    if (obj1.type != obj2.type)
-        ans.u.bo = 0;
-    else
-        switch (obj1.type)
-        {
-            case TY_BOOL:
-                ans.u.bo = obj2.u.bo == obj2.u.bo;
-                break;
-
-            case TY_FLOAT:
-                ans.u.bo = obj1.u.fl == obj2.u.fl;
-                break;
-
-            case TY_INT:
-                ans.u.bo = obj1.u.i == obj2.u.i;
-                break;
-
-            case TY_STR:
-                ans.u.bo = !strcmp(obj1.u.s->arr, obj2.u.s->arr);
-                break;
-
-            case TY_FUNC:
-                ans.u.bo = obj1.u.f == obj2.u.f;
-                break;
-
-            case TY_BLOCK:
-                ans.u.bo = !strcmp(obj1.u.b.str->arr, obj2.u.b.str->arr);
-                break;
-        }
-
-    ns_push(ans);
-}
-
-/*
- * Stack manipulation.
- */
-
-void ns_dup()
-{
-    ns_push(ns_stack->obj);
-}
-/* ------------------ */
-void ns_rot()
-{
-    struct ns_stack *tmp1 = ns_stack->next;
-    struct ns_stack *tmp2 = ns_stack;
-    tmp2->next = tmp1->next;
-    ns_stack = tmp1;
-    ns_stack->next = tmp2;
-}
-/* ------------------ */
-void ns_at()
-{
-    struct ns_obj pos = ns_pop();
-
-    if (pos.type != TY_INT)
-        ns_error("at: Need integer position!");
-
-    if (pos.u.i >= ns_stackSize)
-        ns_error("at: Position out of bounds!");
-
-    struct ns_stack *curr = ns_stack;
-    while (pos.u.i--)
-        curr = curr->next;
-
-    ns_push(curr->obj);
-}
-/* ------------------ */
 void ns_type()
 {
     struct ns_obj obj = ns_pop();
@@ -341,18 +325,17 @@ void ns_type()
 struct ns_namemap ns_builtinsMap[] =
 {
     /* Functions. */
-    { "print", { TY_FUNC, { .f = ns_print } } },
-    { "exit", { TY_FUNC, { .f = ns_exit } } },
-    { "repeat", { TY_FUNC, { .f = ns_repeat } } },
-    { "dup", { TY_FUNC, { .f = ns_dup } } },
-    { "rot", { TY_FUNC, { .f = ns_rot } } },
-    { "if", { TY_FUNC, { .f = ns_if } } },
-    { "ifelse", { TY_FUNC, { .f = ns_ifelse } } },
-    { "equals", { TY_FUNC, { .f = ns_equals } } },
-    { "printStack", { TY_FUNC, { .f = ns_printStack } } },
     { "at", { TY_FUNC, { .f = ns_at } } },
-    { "getline", { TY_FUNC, { .f = ns_getline } } },
+    { "dup", { TY_FUNC, { .f = ns_dup } } },
+    { "exit", { TY_FUNC, { .f = ns_exit } } },
     { "getchar", { TY_FUNC, { .f = ns_getchar } } },
+    { "getline", { TY_FUNC, { .f = ns_getline } } },
+    { "ifelse", { TY_FUNC, { .f = ns_ifelse } } },
+    { "if", { TY_FUNC, { .f = ns_if } } },
+    { "printStack", { TY_FUNC, { .f = ns_printStack } } },
+    { "print", { TY_FUNC, { .f = ns_print } } },
+    { "repeat", { TY_FUNC, { .f = ns_repeat } } },
+    { "rot", { TY_FUNC, { .f = ns_rot } } },
     { "type", { TY_FUNC, { .f = ns_type } } },
 
     /* Operators. */

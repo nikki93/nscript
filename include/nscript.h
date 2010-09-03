@@ -234,21 +234,21 @@ extern struct ns_namespace *ns_builtinsSpace;
 
 void ns_initBuiltinsSpace();
 
-void ns_print();
 void ns_add();
-void ns_subtract();
-void ns_multiply();
+void ns_at();
 void ns_divide();
-void ns_exit();
-void ns_repeat();
 void ns_dup();
-void ns_rot();
+void ns_equals();
+void ns_exit();
+void ns_getchar();
+void ns_getline();
 void ns_if();
 void ns_ifelse();
-void ns_equals();
+void ns_multiply();
+void ns_print();
 void ns_printStack();
-void ns_at();
-void ns_getline();
-void ns_getchar();
+void ns_repeat();
+void ns_rot();
+void ns_subtract();
 void ns_type();
 
