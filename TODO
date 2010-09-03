@@ -4,13 +4,16 @@ Todo
 
 - Format string output.
 
-- Clean up interpreter code.
+- Make all the 'obj.bla' stuff use the macros instead.
+
+- Implement 'symbol' idea?
 
 - Use an array for stack instead of linked list?
-
-- Move everything into 'nsvm' struct to allow multiple nscript vms in
-  the same program?
 
 - Add 'array' type?
 
 - Add structs?
+
+- Move everything into 'nsvm' struct to allow multiple nscript vms in
+  the same program?
+

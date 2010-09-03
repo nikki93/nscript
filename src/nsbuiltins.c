@@ -154,7 +154,7 @@ void ns_getline()
     ns_push(obj);
 }
 /* ------------------ */
-void ns_getstrch()
+void ns_getch()
 {
     struct ns_obj pos = ns_pop();
     struct ns_obj str = ns_pop();
@@ -289,7 +289,7 @@ void ns_repeat()
 
     if (num.type != TY_INT)
         ns_error("repeat: Need an integer repeat count!");
-    if (func.type != TY_FUNC && func.type != TY_BLOCK)
+    if (!NS_ISEXECUTABLE(func))
         ns_error("repeat: Need an executable to run!");
 
     while (num.u.i--)
@@ -305,7 +305,7 @@ void ns_rot()
     ns_stack->next = tmp2;
 }
 /* ------------------ */
-void ns_setstrch()
+void ns_setch()
 {
     struct ns_obj pos = ns_pop();
     struct ns_obj ch = ns_pop();
@@ -371,8 +371,8 @@ struct ns_namemap ns_builtinsMap[] =
     { "repeat", { TY_FUNC, { .f = ns_repeat } } },
     { "rot", { TY_FUNC, { .f = ns_rot } } },
     { "type", { TY_FUNC, { .f = ns_type } } },
-    { "getch", { TY_FUNC, { .f = ns_getstrch } } },
-    { "setch", { TY_FUNC, { .f = ns_setstrch } } },
+    { "getch", { TY_FUNC, { .f = ns_getch } } },
+    { "setch", { TY_FUNC, { .f = ns_setch } } },
 
     /* Operators. */
     { "+", { TY_FUNC, { .f = ns_add } } },
