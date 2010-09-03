@@ -138,14 +138,7 @@ void ns_exit()
 /* ------------------ */
 void ns_getchar()
 {
-    struct ns_obj obj;
-    obj.type = TY_STR;
-    obj.u.s = dynarr_new_alloc(2);
-    obj.u.s->size = 2;
-    obj.u.s->arr[0] = getchar();
-    obj.u.s->arr[1] = '\0';
-
-    ns_push(obj);
+    ns_push(ns_makeChar(getchar()));
 }
 /* ------------------ */
 void ns_getline()
@@ -159,6 +152,19 @@ void ns_getline()
         dynarr_append(obj.u.s, (char) c);
 
     ns_push(obj);
+}
+/* ------------------ */
+void ns_getstrch()
+{
+    struct ns_obj pos = ns_pop();
+    struct ns_obj str = ns_pop();
+
+    if (!NS_ISINT(pos))
+        ns_error("getch: Need integer position!");
+    if (!NS_ISSTR(str))
+        ns_error("getch: Need string source!");
+
+    ns_push(ns_makeChar(NS_STRFROMOBJ(str)[NS_INTFROMOBJ(pos)]));
 }
 /* ------------------ */
 void ns_if()
@@ -299,6 +305,22 @@ void ns_rot()
     ns_stack->next = tmp2;
 }
 /* ------------------ */
+void ns_setstrch()
+{
+    struct ns_obj pos = ns_pop();
+    struct ns_obj ch = ns_pop();
+    struct ns_obj *str = &ns_stack->obj;
+
+    if (!NS_ISINT(pos))
+        ns_error("setch: Need integer position!");
+    if (!NS_ISSTR(ch))
+        ns_error("setch: Need string source!");
+    if (!NS_ISSTR(*str))
+        ns_error("setch: Need string destination!");
+
+    str->u.s->arr[NS_INTFROMOBJ(pos)] = NS_STRFROMOBJ(ch)[0];
+}
+/* ------------------ */
 void ns_subtract()
 {
     struct ns_obj a = ns_pop();
@@ -349,6 +371,8 @@ struct ns_namemap ns_builtinsMap[] =
     { "repeat", { TY_FUNC, { .f = ns_repeat } } },
     { "rot", { TY_FUNC, { .f = ns_rot } } },
     { "type", { TY_FUNC, { .f = ns_type } } },
+    { "getch", { TY_FUNC, { .f = ns_getstrch } } },
+    { "setch", { TY_FUNC, { .f = ns_setstrch } } },
 
     /* Operators. */
     { "+", { TY_FUNC, { .f = ns_add } } },

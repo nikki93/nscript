@@ -2,8 +2,6 @@ Todo
 ----
 - Add license.
 
-- Add len/setch/getch functions for strings.
-
 - Format string output.
 
 - Clean up interpreter code.

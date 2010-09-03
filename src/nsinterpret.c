@@ -332,7 +332,7 @@ fin_get_var:
                 else
                 {
                     dynarr_append(buf, '\0');
-                    struct ns_obj *obj = ns_searchNamespace(ns_currNamespace, 
+                    struct ns_obj *obj = ns_searchNamespaceInherit(ns_currNamespace, 
                             buf->arr);
 
                     if (obj->type != TY_EMPTY)

@@ -50,6 +50,18 @@ struct ns_obj ns_makeFuncObj(ns_cFunc f)
     return obj;
 }
 /* ------------------ */
+struct ns_obj ns_makeChar(char c)
+{
+    struct ns_obj obj;
+    obj.type = TY_STR;
+    obj.u.s = dynarr_new_alloc(2);
+    obj.u.s->size = 2;
+    obj.u.s->arr[0] = c;
+    obj.u.s->arr[1] = '\0';
+
+    return obj;
+}
+/* ------------------ */
 void ns_execute(struct ns_obj obj)
 {
     switch (obj.type)

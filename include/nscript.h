@@ -87,11 +87,12 @@ struct ns_obj ns_makeStrObjLen(char *c, unsigned int len);
 struct ns_obj ns_makeStrObj(char *c);
 struct ns_obj ns_makeFuncObj(ns_cFunc f);
 void ns_execute(struct ns_obj obj);
+struct ns_obj ns_makeChar(char c);
 
 #define NS_BOOLFROMOBJ(obj) ((obj).u.bo)
 #define NS_INTFROMOBJ(obj) ((obj).u.i)
 #define NS_FLOATFROMOBJ(obj) ((obj).u.fl)
-#define NS_STRFROMOBJ(obj) ((obj).u.s)
+#define NS_STRFROMOBJ(obj) ((obj).u.s->arr)
 #define NS_FUNCFROMOBJ(obj) ((obj).u.f)
 
 #define NS_ISBOOL(obj) ((obj).type == TY_BOOL)
@@ -242,6 +243,7 @@ void ns_equals();
 void ns_exit();
 void ns_getchar();
 void ns_getline();
+void ns_getstrch();
 void ns_if();
 void ns_ifelse();
 void ns_len();
@@ -250,6 +252,7 @@ void ns_print();
 void ns_printStack();
 void ns_repeat();
 void ns_rot();
+void ns_setstrch();
 void ns_subtract();
 void ns_type();
 
