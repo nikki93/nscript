@@ -1,5 +1,7 @@
 tags
+tlist
 cscope.out
+
 libnscript.a
 ns
 *.o
