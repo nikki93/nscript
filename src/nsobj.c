@@ -44,6 +44,24 @@ struct ns_obj ns_makeStrObj(char *c)
     return ns_makeStrObjLen(c, strlen(c));
 }
 /* ------------------ */
+struct ns_obj ns_makeSymObjLen(char *c, unsigned int len)
+{
+    struct ns_obj obj;
+    obj.type = TY_SYM;
+
+    obj.u.sym = dynarr_new_alloc(len + 1);
+    dynarr_resize_up(obj.u.sym, len);
+    obj.u.sym->size = len + 1;
+    strcpy(obj.u.sym->arr, c);
+
+    return obj;
+}
+/* ------------------ */
+struct ns_obj ns_makeSymObj(char *c)
+{
+    return ns_makeSymObjLen(c, strlen(c));
+}
+/* ------------------ */
 struct ns_obj ns_makeFuncObj(ns_cFunc f)
 {
     struct ns_obj obj = { TY_FUNC, { .f = f } };
@@ -74,6 +92,22 @@ void ns_execute(struct ns_obj obj)
             ns_interpretInChildLine(obj.u.b.str->arr, obj.u.b.file->arr, 
                     obj.u.b.lineNo, ns_currNamespace);
             break;
+
+        case TY_SYM:
+            {
+                struct ns_obj *e = ns_searchNamespaceInherit(ns_currNamespace, 
+                        obj.u.sym->arr);
+
+                if (e == &ns_defaultObj)
+                    ns_error("exec: Could not find variable '%s'!", 
+                            obj.u.sym->arr);
+                if (!NS_ISEXECUTABLE(*e))
+                    ns_error("exec: '%s' is not executable!", 
+                            obj.u.sym->arr);
+
+                ns_execute(*e);
+                break;
+            }
     }
 }
 

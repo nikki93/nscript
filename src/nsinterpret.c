@@ -58,13 +58,11 @@ void ns_interpret(const char *code, const char *filename, int lineNo, struct
         MD_READFLOATPART,
         MD_READSTR,
         MD_READBLOCK,
-
-        MD_GETVAR,
-        MD_SETVAR,
+        MD_READSYM,
+        MD_READVAR,
     };
 
     int mode = MD_NONE;
-    int callFunc = 1;
     int blockDepth = 0;
     int negative = 0;
     int blockLine;
@@ -87,8 +85,14 @@ void ns_interpret(const char *code, const char *filename, int lineNo, struct
         switch (mode)
         {
             case MD_NONE:
-                //Integer constant. Will convert to float if there's a '.'.
-                if (isdigit(*curr) || (*(curr + 1) && (*curr == '-') && 
+                //Comment.
+                if (*curr == '#')
+                {
+                    while (*++curr && (*curr != '\n'));
+                    --curr; /* To go over the newline again. */
+                }
+                //Integer constant. Will convert to float afterwards if needed.
+                else if (isdigit(*curr) || (*(curr + 1) && (*curr == '-') && 
                             isdigit(*(curr + 1)) && (negative = 1)))
                 {
                     mode = MD_READINT;
@@ -109,16 +113,6 @@ void ns_interpret(const char *code, const char *filename, int lineNo, struct
 
                     break;
                 }
-                //Function reference.
-                else if (*curr == '&')
-                {
-                    callFunc = 0;
-                    mode = MD_GETVAR;
-
-                    dynarr_clear(buf);
-
-                    break;
-                }
                 //Block of code.
                 else if (*curr == '{')
                 {
@@ -130,25 +124,19 @@ void ns_interpret(const char *code, const char *filename, int lineNo, struct
 
                     break;
                 }
-                //Comment.
-                else if (*curr == '#')
+                //Symbol.
+                else if (*curr == '&')
                 {
-                    while (*++curr && (*curr != '\n'));
-                    --curr; /* To go over the newline again. */
-                }
-                //Variable definition.
-                else if (*curr == '$')
-                {
-                    mode = MD_SETVAR;
+                    mode = MD_READSYM;
 
                     dynarr_clear(buf);
 
                     break;
                 }
-                //Variable read.
+                //Variable.
                 else if (*curr && !isspace(*curr))
                 {
-                    mode = MD_GETVAR;
+                    mode = MD_READVAR;
 
                     dynarr_clear(buf);
 
@@ -297,48 +285,36 @@ read_int:
                 }
                 break;
 
-            case MD_GETVAR:
+            case MD_READSYM:
+                if (*curr && !isspace(*curr))
+                    dynarr_append(buf, *curr);
+                else
+                {
+                    dynarr_append(buf, '\0');
+
+                    ns_push(ns_makeSymObjLen(buf->arr, buf->size - 1));
+                    mode = MD_NONE;
+                }
+                break;
+
+            case MD_READVAR:
 get_var:
                 if (*curr && !isspace(*curr))
                     dynarr_append(buf, *curr);
                 else
                 {
                     dynarr_append(buf, '\0');
-                    mode = MD_NONE;
 
                     struct ns_obj obj = *ns_searchNamespaceInherit(ns_currNamespace, 
                             buf->arr);
-
                     if (obj.type != TY_EMPTY)
-                    {
-                        if (callFunc && NS_ISEXECUTABLE(obj))
+                        if (NS_ISEXECUTABLE(obj))
                             ns_execute(obj);
                         else
                             ns_push(obj);
-                        goto fin_get_var;
-                    }
-
-                    ns_error("Variable '%s' not found!", buf->arr);
-
-fin_get_var:
-                    //Reset for next time.
-                    callFunc = 1;
-                }
-                break;
-
-            case MD_SETVAR:
-                if (*curr && !isspace(*curr))
-                    dynarr_append(buf, *curr);
-                else
-                {
-                    dynarr_append(buf, '\0');
-                    struct ns_obj *obj = ns_searchNamespaceInherit(ns_currNamespace, 
-                            buf->arr);
-
-                    if (obj->type != TY_EMPTY)
-                        *obj = ns_pop();
                     else
-                        ns_addToNamespace(ns_currNamespace, buf->arr, ns_pop());
+                        ns_error("Variable '%s' not found!", buf->arr);
+
                     mode = MD_NONE;
                 }
                 break;

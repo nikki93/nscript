@@ -54,7 +54,8 @@ enum
     TY_FLOAT,
     TY_STR,
     TY_FUNC,
-    TY_BLOCK
+    TY_BLOCK,
+    TY_SYM
 };
 
 struct ns_block
@@ -75,6 +76,7 @@ struct ns_obj
         struct dynarr *s;                      //TY_STR
         ns_cFunc f;                            //TY_FUNC
         struct ns_block b;                     //TY_BLOCK
+        struct dynarr *sym;                    //TY_SYM
     } u;
 };
 
@@ -85,6 +87,8 @@ struct ns_obj ns_makeIntObj(int i);
 struct ns_obj ns_makeFloatObj(double fl);
 struct ns_obj ns_makeStrObjLen(char *c, unsigned int len);
 struct ns_obj ns_makeStrObj(char *c);
+struct ns_obj ns_makeSymObjLen(char *c, unsigned int len);
+struct ns_obj ns_makeSymObj(char *c);
 struct ns_obj ns_makeFuncObj(ns_cFunc f);
 void ns_execute(struct ns_obj obj);
 struct ns_obj ns_makeChar(char c);
@@ -101,8 +105,9 @@ struct ns_obj ns_makeChar(char c);
 #define NS_ISSTR(obj) ((obj).type == TY_STR)
 #define NS_ISFUNC(obj) ((obj).type == TY_FUNC)
 #define NS_ISBLOCK(obj) ((obj).type == TY_BLOCK)
+#define NS_ISSYM(obj) ((obj).type == TY_SYM)
 #define NS_ISNUM(obj) ((obj).type == TY_INT || (obj).type == TY_FLOAT)
-#define NS_ISEXECUTABLE(obj) ((obj).type == TY_FUNC || (obj).type == TY_BLOCK)
+#define NS_ISEXECUTABLE(obj) ((obj).type == TY_FUNC || (obj).type == TY_BLOCK || (obj).type == TY_SYM)
 
 #define NS_INTTOFLOAT(obj) \
     do \
@@ -236,6 +241,7 @@ extern struct ns_namespace *ns_builtinsSpace;
 void ns_initBuiltinsSpace();
 
 void ns_add();
+void ns_assign();
 void ns_at();
 void ns_divide();
 void ns_dup();
