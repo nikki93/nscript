@@ -37,7 +37,7 @@ void ns_assign()
     if (!NS_ISSYM(s))
         ns_error("assign: Need a symbol to identify variable to assign to!");
 
-    struct ns_obj *p = ns_searchNamespaceInherit(ns_currNamespace, s.u.sym->arr);
+    struct ns_obj *p = ns_searchNamespace(ns_currNamespace, s.u.sym->arr);
 
     if (p->type != TY_EMPTY)
         *p = o;
@@ -249,6 +249,22 @@ void ns_multiply()
     }
 }
 /* ------------------ */
+void ns_parentAssign()
+{
+    struct ns_obj s = ns_pop();
+    struct ns_obj o = ns_pop();
+
+    if (!NS_ISSYM(s))
+        ns_error("parentAssign: Need a symbol to identify variable to assign to!");
+
+    struct ns_obj *p = ns_searchNamespaceInherit(ns_currNamespace, s.u.sym->arr);
+
+    if (p->type != TY_EMPTY)
+        *p = o;
+    else
+        ns_addToNamespace(ns_currNamespace, s.u.sym->arr, o);
+}
+/* ------------------ */
 void ns_print()
 {
     struct ns_obj obj = ns_pop();
@@ -401,6 +417,7 @@ struct ns_namemap ns_builtinsMap[] =
     { "/", { TY_FUNC, { .f = ns_divide } } },
     { "==", { TY_FUNC, { .f = ns_equals } } },
     { "=", { TY_FUNC, { .f = ns_assign } } },
+    { "p=", { TY_FUNC, { .f = ns_parentAssign } } },
 
     /* Constants. */
     { "true", { TY_BOOL, { .bo = 1 } } },

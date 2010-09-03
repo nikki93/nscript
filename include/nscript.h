@@ -254,6 +254,7 @@ void ns_if();
 void ns_ifelse();
 void ns_len();
 void ns_multiply();
+void ns_parentAssign();
 void ns_print();
 void ns_printStack();
 void ns_repeat();
