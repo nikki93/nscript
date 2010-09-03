@@ -141,6 +141,7 @@ void ns_getchar()
     struct ns_obj obj;
     obj.type = TY_STR;
     obj.u.s = dynarr_new_alloc(2);
+    obj.u.s->size = 2;
     obj.u.s->arr[0] = getchar();
     obj.u.s->arr[1] = '\0';
 

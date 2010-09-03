@@ -257,7 +257,7 @@ read_int:
                 {
                     dynarr_append(buf, '\0');
 
-                    ns_push(ns_makeStrObjLen(buf->arr, buf->size));
+                    ns_push(ns_makeStrObjLen(buf->arr, buf->size - 1));
                     mode = MD_NONE;
                 }
                 break;
@@ -282,9 +282,12 @@ read_int:
                     obj.type = TY_BLOCK;
 
                     obj.u.b.str = dynarr_new_alloc(buf->size);
+                    obj.u.b.str->size = buf->size;
                     strcpy(obj.u.b.str->arr, buf->arr);
 
-                    obj.u.b.file = dynarr_new_alloc(strlen(filename));
+                    int len = strlen(filename);
+                    obj.u.b.file = dynarr_new_alloc(len);
+                    obj.u.b.file->size = len + 1; 
                     strcpy(obj.u.b.file->arr, filename);
 
                     obj.u.b.lineNo = blockLine;

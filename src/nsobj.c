@@ -31,8 +31,9 @@ struct ns_obj ns_makeStrObjLen(char *c, unsigned int len)
     struct ns_obj obj;
     obj.type = TY_STR;
 
-    obj.u.s = dynarr_new();
+    obj.u.s = dynarr_new_alloc(len + 1);
     dynarr_resize_up(obj.u.s, len);
+    obj.u.s->size = len + 1;
     strcpy(obj.u.s->arr, c);
 
     return obj;
