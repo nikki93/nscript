@@ -57,6 +57,13 @@ enum
     TY_BLOCK
 };
 
+struct ns_block
+{
+    struct dynarr *file;
+    int lineNo;
+    struct dynarr *str;                  
+};
+
 struct ns_obj
 {
     short type;
@@ -67,12 +74,7 @@ struct ns_obj
         double fl;                             //TY_FLOAT
         struct dynarr *s;                      //TY_STR
         ns_cFunc f;                            //TY_FUNC
-        struct ns_block
-        {
-            struct dynarr *file;
-            int lineNo;
-            struct dynarr *str;                  
-        } b;                                   //TY_BLOCK
+        struct ns_block b;                     //TY_BLOCK
     } u;
 };
 

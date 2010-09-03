@@ -8,7 +8,7 @@
 
 struct trie *trie_new()
 {
-    struct trie *trie = (struct trie *) malloc(sizeof(struct trie));
+    struct trie *trie = malloc(sizeof(struct trie));
 
     int i;
     for (i = 0; i < 256; ++i)

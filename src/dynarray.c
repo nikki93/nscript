@@ -9,7 +9,7 @@
 
 struct dynarr *dynarr_new()
 {
-    struct dynarr *array = (struct dynarr *) malloc(sizeof(struct dynarr));
+    struct dynarr *array = malloc(sizeof(struct dynarr));
     array->size = 0;
     array->alloc_size = 0;
     array->arr = 0;
@@ -19,10 +19,10 @@ struct dynarr *dynarr_new()
 /* ------------------ */
 struct dynarr *dynarr_new_alloc(unsigned int n)
 {
-    struct dynarr *array = (struct dynarr *) malloc(sizeof(struct dynarr));
+    struct dynarr *array = malloc(sizeof(struct dynarr));
     array->size = 0;
     array->alloc_size = n;
-    array->arr = (dynarr_info_t *) malloc(n * sizeof(dynarr_info_t));
+    array->arr = malloc(n * sizeof(dynarr_info_t));
 
     return array;
 }
