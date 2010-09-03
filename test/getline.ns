@@ -2,7 +2,7 @@
 #leaves the string on stack (without the trailing newline).
 
 "Type something: " print
-getline $str
+getline &str =
 
 "You typed: " print str print
 

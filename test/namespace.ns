@@ -2,17 +2,17 @@
 
 #A simple function that prints '1', '2' and '3' in three separate print
 #calls.
-{ 3 2 1 &print 3 repeat } $print123
+{ 3 2 1 &print 3 repeat } &print123 =
 
 {
     #Redefine 'print' locally, keep old print in _print. The new print
     #function will print "Printing: <value>, "
-    &print $_print
-    { ', ' rot 'Printing: ' &_print 3 repeat } $print
+    &print &_print =
+    { ', ' rot 'Printing: ' &_print 3 repeat } &print =
 
     #Here, print123 will use the new 'print'.
     print123
-} $test
+} &test =
 
 test
 

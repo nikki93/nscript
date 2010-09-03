@@ -1,8 +1,8 @@
 #Reverse the argument order for 'if'.
 
 {
-  &if $_if
-  { rot _if } $if #The 'reversed if'.
+  &if &_if =
+  { rot _if } &if = #The 'reversed if'.
 
   #Code here uses the reversed if.
   { "It's true!\n" print } true if

@@ -12,7 +12,7 @@
         1 rot { dup 1 + } rot
 
         #We put count - 1 on stack, and in the 'oneLess' variable.
-        1 - dup $oneLess
+        1 - dup &oneLess =
 
         #This will cause { dup 1 + } to run starting with 1, count - 1 times, thus
         #making  a list of numbers from 1 to count on the stack.
@@ -23,12 +23,11 @@
         &* oneLess repeat
 
     } ifelse
-} $fact
-
+} &fact =
 
 "10 factorial: " print 10 fact print "\n" print
 
 #Now we create a sumN function to sum first n numbers using this fact function.
-{ &+ $* fact } $sumN
+{ &+ &* = fact } &sumN =
 
 "Sum of integers 1 to 100: " print 100 sumN print "\n" print
