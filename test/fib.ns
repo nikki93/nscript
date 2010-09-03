@@ -1,14 +1,14 @@
 #Prints the fibonacci sequence for n > 2.
 
 #Prints something and adds a space after it
-{ print ' ' print } $spacePrint                    
+{ print ' ' print } &spacePrint =                    
 
 {
     #Add last two on stack, but keep them on stack.
     1 at 1 at +                                     
     #Print it (duplicate so it's not lost).
     dup spacePrint                                  
-} $_fib
+} &_fib =
 
 {
     #Subtract 2 since we already print 0, 1 anyway.
@@ -27,7 +27,7 @@
 
     #Runs _fib n times.
     repeat                                          
-} $fib
+} &fib =
 
 25 fib
 
