@@ -194,6 +194,16 @@ void ns_ifelse()
         ns_execute(code2);
 }
 /* ------------------ */
+void ns_len()
+{
+    struct ns_obj str = ns_pop();
+
+    if (!NS_ISSTR(str))
+        ns_error("len: Need a string!");
+
+    ns_push(ns_makeIntObj(str.u.s->size - 1));
+}
+/* ------------------ */
 void ns_multiply()
 {
     struct ns_obj a = ns_pop();
@@ -333,6 +343,7 @@ struct ns_namemap ns_builtinsMap[] =
     { "getline", { TY_FUNC, { .f = ns_getline } } },
     { "ifelse", { TY_FUNC, { .f = ns_ifelse } } },
     { "if", { TY_FUNC, { .f = ns_if } } },
+    { "len", { TY_FUNC, { .f = ns_len } } },
     { "printStack", { TY_FUNC, { .f = ns_printStack } } },
     { "print", { TY_FUNC, { .f = ns_print } } },
     { "repeat", { TY_FUNC, { .f = ns_repeat } } },

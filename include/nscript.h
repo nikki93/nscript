@@ -244,6 +244,7 @@ void ns_getchar();
 void ns_getline();
 void ns_if();
 void ns_ifelse();
+void ns_len();
 void ns_multiply();
 void ns_print();
 void ns_printStack();
