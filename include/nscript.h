@@ -133,16 +133,16 @@ trie_info_t *trie_get(struct trie *trie, const char *c, trie_info_t *def);
  * error
  */
 
-#define ns_error(fmt, ...)               \
-do                                       \
-{                                        \
-    fprintf(stderr, "\nError: ");        \
-    fprintf(stderr, fmt, ##__VA_ARGS__); \
-    putc('\n', stderr);                  \
-    putc('\n', stderr);                  \
-    ns_printContext();                   \
-    exit(1);                             \
-} while (0)
+#define ns_error(fmt, ...) \
+    do \
+    { \
+        fprintf(stderr, "\nError: "); \
+        fprintf(stderr, fmt, ##__VA_ARGS__); \
+        putc('\n', stderr); \
+        putc('\n', stderr); \
+        ns_printContext(); \
+        exit(1); \
+    } while (0)
 
 /*
  * nsstack.c
