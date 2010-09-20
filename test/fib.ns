@@ -1,32 +1,26 @@
 #Prints the fibonacci sequence for n > 2.
 
 #Prints something and adds a space after it
-{ print ' ' print } &spacePrint =                    
+{ print ' ' print } &spacePrint =
 
 {
-    #Add last two on stack, but keep them on stack.
-    1 at 1 at +                                     
-    #Print it (duplicate so it's not lost).
-    dup spacePrint                                  
+    #Add last two on stack, but keep last on stack.
+    rot 1 at +
+    #Print sum (duplicate to keep it for next time).
+    dup spacePrint
 } &_fib =
 
 {
     #Subtract 2 since we already print 0, 1 anyway.
-    2 -                                             
+    2 - &n =
 
     #Print first two terms.
-    '0 1 ' print                                  
+    '0 1 ' print
+    #Put first two terms.
+    0 1
 
-    #Put first two terms, but 'rot' to keep the 
-    #repeat index last.
-    0 rot 1 rot                                     
-
-    #Put reference to _fib, but 'rot' to keep the 
-    #repeat index last.
-    &_fib rot                                       
-
-    #Runs _fib n times.
-    repeat                                          
+    #Run _fib n times.
+    &_fib n repeat
 } &fib =
 
 25 fib
