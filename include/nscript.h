@@ -17,30 +17,6 @@
 #include <stdlib.h>
 
 /*
- * dynarray.c
- */
-
-#define DYNARRAY_RESIZE_FACTOR 2
-typedef char dynarr_info_t;
-struct dynarr
-{
-    unsigned int size;
-    unsigned int alloc_size;
-    dynarr_info_t *arr;
-};
-
-struct dynarr *dynarr_new();
-struct dynarr *dynarr_new_alloc(unsigned int n);
-void dynarr_free(struct dynarr *array);
-int dynarr_append(struct dynarr *array, dynarr_info_t info);
-int dynarr_insert(struct dynarr *array, unsigned int pos, dynarr_info_t info);
-int dynarr_remove(struct dynarr *array, unsigned int pos);
-int dynarr_resize_down(struct dynarr *array, unsigned int size);
-int dynarr_resize_up(struct dynarr *array, unsigned int size);
-int dynarr_resize_auto(struct dynarr *array, unsigned int size);
-void dynarr_clear(struct dynarr *array);
-
-/*
  * nsobj.c
  */
 
@@ -117,39 +93,6 @@ struct ns_obj ns_makeChar(char c);
     } while(0)
 
 /*
- * trie.c
- */
-
-typedef struct ns_obj trie_info_t;
-
-struct trie
-{
-    char initialised;
-    trie_info_t info;
-    struct trie *arr[256];
-};
-
-struct trie *trie_new();
-void trie_free(struct trie *trie);
-void trie_add(struct trie *trie, const char *c, trie_info_t info);
-trie_info_t *trie_get(struct trie *trie, const char *c, trie_info_t *def);
-
-/*
- * error
- */
-
-#define ns_error(fmt, ...) \
-    do \
-    { \
-        fprintf(stderr, "\nError: "); \
-        fprintf(stderr, fmt, ##__VA_ARGS__); \
-        putc('\n', stderr); \
-        putc('\n', stderr); \
-        ns_printContext(); \
-        exit(1); \
-    } while (0)
-
-/*
  * nsstack.c
  */
 
@@ -209,22 +152,18 @@ void ns_interpret(const char *code, const char *filename, int lineNo, struct ns_
 
 #define ns_interpretInNamespace(code, filename, ns) \
     ns_interpret(code, filename, 1, ns)
-
 #define ns_interpretInChild(code, filename, ns) \
     do \
     { \
         ns_interpret(code, filename, 1, ns_newNamespace(ns)); \
     } while (0)
-
 #define ns_interpretInChildLine(code, filename, line, ns) \
     do \
     { \
         ns_interpret(code, filename, line, ns_newNamespace(ns)); \
     } while (0)
-
 #define ns_interpretString(code, ns) \
     ns_interpret(code, "<string>", 1, ns)
-
 #define ns_interpretStringInChild(code, ns) \
     do \
     { \
@@ -262,4 +201,61 @@ void ns_rot();
 void ns_setch();
 void ns_subtract();
 void ns_type();
+
+/*
+ * dynarray.c
+ */
+
+#define DYNARRAY_RESIZE_FACTOR 2
+typedef char dynarr_info_t;
+struct dynarr
+{
+    unsigned int size;
+    unsigned int alloc_size;
+    dynarr_info_t *arr;
+};
+
+struct dynarr *dynarr_new();
+struct dynarr *dynarr_new_alloc(unsigned int n);
+void dynarr_free(struct dynarr *array);
+int dynarr_append(struct dynarr *array, dynarr_info_t info);
+int dynarr_insert(struct dynarr *array, unsigned int pos, dynarr_info_t info);
+int dynarr_remove(struct dynarr *array, unsigned int pos);
+int dynarr_resize_down(struct dynarr *array, unsigned int size);
+int dynarr_resize_up(struct dynarr *array, unsigned int size);
+int dynarr_resize_auto(struct dynarr *array, unsigned int size);
+void dynarr_clear(struct dynarr *array);
+
+/*
+ * trie.c
+ */
+
+typedef struct ns_obj trie_info_t;
+
+struct trie
+{
+    char initialised;
+    trie_info_t info;
+    struct trie *arr[256];
+};
+
+struct trie *trie_new();
+void trie_free(struct trie *trie);
+void trie_add(struct trie *trie, const char *c, trie_info_t info);
+trie_info_t *trie_get(struct trie *trie, const char *c, trie_info_t *def);
+
+/*
+ * error
+ */
+
+#define ns_error(fmt, ...) \
+    do \
+    { \
+        fprintf(stderr, "\nError: "); \
+        fprintf(stderr, fmt, ##__VA_ARGS__); \
+        putc('\n', stderr); \
+        putc('\n', stderr); \
+        ns_printContext(); \
+        exit(1); \
+    } while (0)
 

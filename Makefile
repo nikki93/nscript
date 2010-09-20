@@ -1,7 +1,7 @@
 CC?=gcc
 AR=ar rcs
-CFLAGS+=-Iinclude/ -c -g
-LDFLAGS+=-L. -g
+CFLAGS+=-Iinclude/ -c
+LDFLAGS+=-L.
 DESTDIR?=
 PREFIX?=/usr/local
 SOURCES=src/nsinterpret.c src/nsbuiltins.c src/nsnamespace.c src/nsobj.c src/nsstack.c src/trie.c src/dynarray.c 
