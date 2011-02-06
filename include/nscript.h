@@ -213,13 +213,17 @@ void ns_interpret(const char *code, const char *filename, int lineNo, struct ns_
 #define ns_interpretInChild(code, filename, ns) \
     do \
     { \
-        ns_interpret(code, filename, 1, ns_newNamespace(ns)); \
+        struct ns_namespace *child = ns_newNamespace(ns); \
+        ns_interpret(code, filename, 1, child); \
+        namespace_free(child); \
     } while (0)
 
 #define ns_interpretInChildLine(code, filename, line, ns) \
     do \
     { \
-        ns_interpret(code, filename, line, ns_newNamespace(ns)); \
+        struct ns_namespace *child = ns_newNamespace(ns); \
+        ns_interpret(code, filename, line, child); \
+        namespace_free(child); \
     } while (0)
 
 #define ns_interpretString(code, ns) \
@@ -228,7 +232,16 @@ void ns_interpret(const char *code, const char *filename, int lineNo, struct ns_
 #define ns_interpretStringInChild(code, ns) \
     do \
     { \
-        ns_interpret(code, "<string>", 1, ns_newNamespace(ns)); \
+        struct ns_namespace *child = ns_newNamespace(ns); \
+        ns_interpret(code, "<string>", 1, child); \
+        namespace_free(child); \
+    } while (0)
+
+#define namespace_free(ns) \
+    do \
+    { \
+        trie_free(ns->vars); \
+        free(ns); \
     } while (0)
 
 /*
