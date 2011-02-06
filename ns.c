@@ -34,6 +34,8 @@ void runFile(FILE *file, const char *filename)
     dynarr_append(str, '\0');
 
     runString(str->arr, filename);
+
+    dynarr_free(str);
 }
 
 void repl()
@@ -55,6 +57,8 @@ void repl()
     }
 
     printf("\n");
+
+    namespace_free(replSpace);
 }
 
 void showHelp(char *progname)
@@ -75,8 +79,17 @@ int main(int argc, char *argv[])
     else
         repl();
 
+    namespace_free(ns_builtinsSpace);
+
     struct ns_obj ret;
+    int return_value = 0;
+
     if (ns_stackSize > 0 && (ret = ns_pop()).type == TY_INT)
-        return NS_INTFROMOBJ(ret);
-    return 0;
+        return_value = NS_INTFROMOBJ(ret);
+    
+    while (ns_stackSize > 0)
+        ns_pop();
+    free(ns_stack);
+
+    return return_value;
 }
