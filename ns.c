@@ -91,5 +91,7 @@ int main(int argc, char *argv[])
         ns_pop();
     free(ns_stack);
 
+    gc_collect();
+
     return return_value;
 }
