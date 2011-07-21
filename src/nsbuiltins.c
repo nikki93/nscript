@@ -39,6 +39,31 @@ void ns_assign()
 
     struct ns_obj *p = ns_searchNamespace(ns_currNamespace, s.u.sym->arr);
 
+    /*
+     * Function symbols are a special case.
+     * Override symbol assignment and assign
+     * the function object.
+     */
+    if(NS_ISSYM(o))
+    {
+        struct ns_obj *q = ns_searchNamespace(ns_builtinsSpace, o.u.sym->arr);
+    
+        if(q->type == TY_FUNC)
+        {
+                if(p->type != TY_EMPTY)
+                {
+                        p->type = TY_FUNC;
+                        p->u.f = q->u.f;  
+                }
+                else
+                        ns_addToNamespace(ns_currNamespace, s.u.sym->arr, ns_makeFuncObj(q->u.f));
+                return;
+        }
+    }
+
+    /*
+     * Symbol assignment
+     */
     if (p->type != TY_EMPTY)
         *p = o;
     else
@@ -259,6 +284,31 @@ void ns_parentAssign()
 
     struct ns_obj *p = ns_searchNamespaceInherit(ns_currNamespace, s.u.sym->arr);
 
+    /*
+     * Function symbols are a special case.
+     * Override symbol assignment and assign
+     * the function object.
+     */
+    if(NS_ISSYM(o))
+    {
+        struct ns_obj *q = ns_searchNamespaceInherit(ns_builtinsSpace, o.u.sym->arr);
+    
+        if(q->type == TY_FUNC)
+        {
+                if(p->type != TY_EMPTY)
+                {
+                        p->type = TY_FUNC;
+                        p->u.f = q->u.f;  
+                }
+                else
+                        ns_addToNamespace(ns_currNamespace, s.u.sym->arr, ns_makeFuncObj(q->u.f));
+                return;
+        }
+    }
+
+    /*
+     * Symbol assignment
+     */
     if (p->type != TY_EMPTY)
         *p = o;
     else
