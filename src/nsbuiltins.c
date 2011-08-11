@@ -193,6 +193,8 @@ void ns_getline()
     while ((c = getchar()) != '\n' && c != EOF)
         dynarr_append(obj.u.s, (char) c);
 
+    dynarr_append(obj.u.s, '\0');
+
     ns_push(obj);
 }
 /* ------------------ */
