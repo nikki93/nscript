@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <nscript.h>
 
@@ -27,6 +28,8 @@ void runString(const char *str, const char *filename)
 void runFile(FILE *file, const char *filename)
 {
     struct dynarr *str = dynarr_new();
+
+    if(!file) ns_error("runFile: Could not open file '%s'", filename);
 
     int c;
     while ((c = getc(file)) != EOF)

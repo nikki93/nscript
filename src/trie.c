@@ -30,7 +30,7 @@ void trie_free(struct trie *trie)
 void trie_add(struct trie *trie, const char *c, trie_info_t info)
 {
     for (; *c; ++c)
-        trie = (trie->arr[*c] ? trie->arr[*c] : (trie->arr[*c] = trie_new()));
+        trie = (trie->arr[(int)*c] ? trie->arr[(int)*c] : (trie->arr[(int)*c] = trie_new()));
 
     trie->info = info;
     trie->initialised = 1;
@@ -43,7 +43,7 @@ trie_info_t *trie_get(struct trie *trie, const char *c, trie_info_t *def)
      * Hopefully pointer-following is fast enough.
      */
     while(*c)
-        if (!(trie = trie->arr[*c++]))
+        if (!(trie = trie->arr[(int)(*c++)]))
             return def;
 
     return trie->initialised ? &(trie->info) : def;

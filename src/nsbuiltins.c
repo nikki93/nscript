@@ -2,6 +2,7 @@
  * nsbuiltins.c
  */
 
+#include <string.h>
 #include <stdio.h>
 
 #include <nscript.h>
@@ -340,7 +341,7 @@ void ns_print()
             break;
 
         case TY_FUNC:
-            printf("C function object at %p", (void *) obj.u.f);
+            printf("C function object at %p", (void *)(size_t)obj.u.f);
             break;
 
         case TY_BLOCK:
