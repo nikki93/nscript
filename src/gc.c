@@ -8,7 +8,7 @@ int garbage_alloc = 1;
 void gc_push(struct dynarr* ptr)
 {
         garbage_size++;
-	garbage_alloc += 5;
+        garbage_alloc++;
         garbage = (struct dynarr **)realloc(garbage, garbage_alloc * sizeof(struct dynarr *));
         garbage[garbage_size] = ptr;
 }
