@@ -69,7 +69,7 @@ void ns_interpret(const char *code, const char *filename, int lineNo, struct
     char stringChar = 0;
     double floatMult = 0.1;
 
-    const char *curr = code, p;
+    const char *curr = code; 
     struct dynarr *buf = dynarr_new();
 
     struct ns_namespace *oldns = ns_currNamespace;

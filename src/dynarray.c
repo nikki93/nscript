@@ -14,6 +14,8 @@ struct dynarr *dynarr_new()
     array->alloc_size = 0;
     array->arr = 0;
 
+    gc_push(array);
+
     return array;
 }
 /* ------------------ */
@@ -24,13 +26,14 @@ struct dynarr *dynarr_new_alloc(unsigned int n)
     array->alloc_size = n;
     array->arr = malloc(n * sizeof(dynarr_info_t));
 
+    gc_push(array);
+
     return array;
 }
 /* ------------------ */
 void dynarr_free(struct dynarr *array)
 {
-    free(array->arr);
-    free(array);
+    /* the garbage collector takes care of this */
 }
 /* ------------------ */
 int dynarr_append(struct dynarr *array, dynarr_info_t info)
